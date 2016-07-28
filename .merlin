@@ -1,4 +1,9 @@
 PKG bytes
+PKG irmin
+PKG ptime
+PKG ptime.clock.os
+PKG git
+PKG mirage-tc
 S src
 S test
 B _build/**
