@@ -164,17 +164,24 @@ module Make(V:Tc.S0) : S with type elt = V.t = struct
 
     (* TODO: Optimize *)
     let get_filename e =
-      Cstruct.create_unsafe (L.size_of e) |>
-      L.write e |> Irmin.Hash.SHA1.digest |>
-      Irmin.Hash.SHA1.to_hum
+      let res =
+        Tc.write_cstruct (module L) e |>
+        Irmin.Hash.SHA1.digest |>
+        Irmin.Hash.SHA1.to_hum
+      in
+      res
     in
 
-    Store.read (t "read_exn") index >>= function
-    | None -> Store.update (t "update index") index @@ L.mk_value e None
+    Store.read (t "read") index >>= function
+    | None ->
+        let v = L.mk_value e None in
+        Lwt_log.debug_f "append.None" >>= fun () ->
+        Store.update (t "update index : None") index v
     | Some prev ->
         let prev_filename = path @ [get_filename prev] in
-        Store.update (t "update prev") prev_filename prev >>= fun () ->
-        Store.update (t "update index") index @@ L.mk_value e (Some prev_filename)
+        Lwt_log.debug_f "append.Some" >>= fun () ->
+        Store.update (t @@ "update prev : " ^ String.concat "/" prev_filename) prev_filename prev >>= fun () ->
+        Store.update (t @@ "update index : Some " ^ String.concat "/" prev_filename) index @@ L.mk_value e (Some prev_filename)
 
   let get_cursor branch ~path =
     let open L in
@@ -186,23 +193,27 @@ module Make(V:Tc.S0) : S with type elt = V.t = struct
 
   let rec read_log cursor ~num_items acc =
     let open L in
-    if num_items <= 0 then Lwt.return (acc, Some cursor)
+    if num_items <= 0 then Lwt.return (List.rev acc, Some cursor)
     else begin
       match cursor.cache with
-      | [] -> Lwt.return (acc, None)
+      | [] -> Lwt.return (List.rev acc, None)
       | {value; prev = None; _}::xs ->
+          Lwt_log.debug_f "read_log.Value.None" >>= fun () ->
           read_log {cursor with cache = xs} (num_items - 1) (value::acc)
       | {value; prev = Some path; _}::xs ->
           if PathSet.mem path cursor.seen then
+            Lwt_log.debug_f "read_log.Value.Some.seen" >>= fun () ->
             read_log {cursor with cache = xs} (num_items - 1) (value::acc)
           else
             let seen = PathSet.add path cursor.seen in
             Store.read_exn (cursor.branch "read") path >>= function
             | Value v ->
-                read_log {cursor with seen; cache = sort (v::cursor.cache)}
+                Lwt_log.debug_f "read_log.Value.Some.unseen.Value" >>= fun () ->
+                read_log {cursor with seen; cache = sort (v::xs)}
                   (num_items - 1) (value::acc)
             | Merge l ->
-                read_log {cursor with seen; cache = sort (l @ cursor.cache)}
+                Lwt_log.debug_f "read_log.Value.Some.unseen.Merge" >>= fun () ->
+                read_log {cursor with seen; cache = sort (l @ xs)}
                   (num_items - 1) (value::acc)
     end
 

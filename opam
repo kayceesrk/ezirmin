@@ -15,7 +15,7 @@ depends: [
 	"lwt"
 	"irmin"
 	"ptime"
-	"tc"
+	"mirage-tc"
 ]
 depopts: []
 build: [
