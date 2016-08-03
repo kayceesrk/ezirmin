@@ -1,4 +1,12 @@
 true : bin_annot, safe_string, package(bytes)
 
 <src> : include
+
+<src/ezirmin_git_log.*>: \
+	package(lwt), package(tc), package(irmin), package(ptime), package(ptime.clock.os)
+
+<src/ezirmin.{ml,mli}>: \
+	package(lwt), package(tc), package(irmin), package(ptime), package(ptime.clock.os)
+
+
 <test> : include

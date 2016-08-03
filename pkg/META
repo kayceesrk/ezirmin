@@ -1,6 +1,6 @@
 description = "An easy interface on top of the Irmin library."
 version = "%%VERSION%%"
-requires = ""
+requires = "lwt tc irmin irmin.unix"
 archive(byte) = "ezirmin.cma"
 archive(native) = "ezirmin.cmxa"
 plugin(byte) = "ezirmin.cma"

@@ -9,9 +9,15 @@ bug-reports: "https://github.com/kayceesrk/ezirmin/issues"
 tags: []
 available: [ ocaml-version >= "4.01.0"]
 depends: [
-  "ocamlfind" {build}
-  "ocamlbuild" {build}
-  "topkg" {build} ]
+  "ocamlfind" 	{build}
+  "ocamlbuild" 	{build}
+  "topkg"     	{build}
+	"lwt"
+	"irmin"
+	"irmin.unix"
+	"ptime"
+	"ptime.clock.os"
+]
 depopts: []
 build: [
   "ocaml" "pkg/pkg.ml" "build"

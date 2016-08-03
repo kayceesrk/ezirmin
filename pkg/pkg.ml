@@ -5,5 +5,7 @@ open Topkg
 
 let () =
   Pkg.describe "ezirmin" @@ fun c ->
-  Ok [ Pkg.mllib "src/ezirmin.mllib";
-       Pkg.test "test/test"; ]
+  Ok [
+    Pkg.mllib "src/ezirmin.mllib";
+    Pkg.test "test/test";
+  ]

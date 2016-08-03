@@ -33,9 +33,9 @@ module Log(V: Tc.S0) = struct
     include (Ptime : TIME with type t := t)
   end
 
-  module K = Irmin.Hash.SHA1
+  module K = Tc.Option(Tc.List(Tc.String))
 
-  type vnode =
+  type log_item =
     { time       : Time.t;
       value      : V.t;
       prev       : K.t }
@@ -43,7 +43,7 @@ module Log(V: Tc.S0) = struct
   module Value = Tc.Biject
     (Tc.Pair (Tc.Pair(Time)(V))(K))
     (struct
-      type t = vnode
+      type t = log_item
       let to_t ((time,value), prev) =
         {time; value; prev}
       let of_t {time;value;prev} =
@@ -92,6 +92,9 @@ module Log(V: Tc.S0) = struct
 
   include C
 
+  let sort l =
+    List.sort (fun i1 i2 -> Time.compare i2.time i1.time) l
+
   let merge : Path.t -> t option Irmin.Merge.t =
     let open Irmin.Merge.OP in
     let merge ~old v1 v2 =
@@ -103,12 +106,15 @@ module Log(V: Tc.S0) = struct
       | Value v -> [v]
       | Merge l -> l
       in
-      ok @@ Merge (lv1 @ lv2)
+      ok @@ Merge (sort @@ lv1 @ lv2)
       in fun _path -> Irmin.Merge.option (module C) merge
+
+   let mk_value value prev =
+     C.Value {time = Ptime_clock.now(); prev; value}
+
 end
 
 module type S = sig
-  type elt
   type repo
   type branch
 
@@ -118,11 +124,16 @@ module type S = sig
   val clone_force : branch -> string -> branch Lwt.t
   val merge_exn   : branch -> into:branch -> unit Lwt.t
 
-  val append : branch -> path:string list -> elt -> unit Lwt.t
-  val read   : branch -> path:string list -> elt list Lwt.t
+  type elt
+  type cursor
+
+  val append     : branch -> path:string list -> elt -> unit Lwt.t
+  val get_cursor : branch -> path:string list -> cursor option Lwt.t
+  val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
+  val read_all   : branch -> path:string list -> elt list Lwt.t
 end
 
-module Make(V:Tc.S0) : S = struct
+module Make(V:Tc.S0) : S with type elt = V.t = struct
 
   module L = Log(V)
   module Store = Irmin_git.FS(L)(Irmin.Ref.String)(Irmin.Hash.SHA1)
@@ -130,6 +141,14 @@ module Make(V:Tc.S0) : S = struct
   type repo = Store.Repo.t
   type elt = V.t
   type branch = string -> Store.t
+  type path = string list
+
+  module PathSet = Set.Make(Irmin.Path.String_list)
+
+  type cursor =
+    { seen   : PathSet.t;
+      cache  : L.log_item list;
+      branch : branch }
 
   let init ~root ~bare =
     let config = Irmin_git.config ~root ~bare () in
@@ -140,6 +159,60 @@ module Make(V:Tc.S0) : S = struct
   let get_branch r ~branch_name = Store.of_branch_id task branch_name r
   let merge_exn b ~into = Store.merge_exn "" b ~into
 
-  let append = failwith "not implemented"
-  let read = failwith "not implemented"
+  let append t ~path e =
+    let index = path @ ["index"] in
+
+    (* TODO: Optimize *)
+    let get_filename e =
+      Cstruct.create_unsafe (L.size_of e) |>
+      L.write e |> Irmin.Hash.SHA1.digest |>
+      Irmin.Hash.SHA1.to_hum
+    in
+
+    Store.read (t "read_exn") index >>= function
+    | None -> Store.update (t "update index") index @@ L.mk_value e None
+    | Some prev ->
+        let prev_filename = path @ [get_filename prev] in
+        Store.update (t "update prev") prev_filename prev >>= fun () ->
+        Store.update (t "update index") index @@ L.mk_value e (Some prev_filename)
+
+  let get_cursor branch ~path =
+    let open L in
+    let mk_cursor cache = Lwt.return @@ Some {seen = PathSet.singleton path; cache; branch} in
+    Store.read (branch "read") (path @ ["index"]) >>= function
+    | None -> Lwt.return None
+    | Some (Value v) -> mk_cursor [v]
+    | Some (Merge l) -> mk_cursor l
+
+  let rec read_log cursor ~num_items acc =
+    let open L in
+    if num_items <= 0 then Lwt.return (acc, Some cursor)
+    else begin
+      match cursor.cache with
+      | [] -> Lwt.return (acc, None)
+      | {value; prev = None; _}::xs ->
+          read_log {cursor with cache = xs} (num_items - 1) (value::acc)
+      | {value; prev = Some path; _}::xs ->
+          if PathSet.mem path cursor.seen then
+            read_log {cursor with cache = xs} (num_items - 1) (value::acc)
+          else
+            let seen = PathSet.add path cursor.seen in
+            Store.read_exn (cursor.branch "read") path >>= function
+            | Value v ->
+                read_log {cursor with seen; cache = sort (v::cursor.cache)}
+                  (num_items - 1) (value::acc)
+            | Merge l ->
+                read_log {cursor with seen; cache = sort (l @ cursor.cache)}
+                  (num_items - 1) (value::acc)
+    end
+
+  let read cursor ~num_items =
+    read_log cursor num_items []
+
+  let read_all branch ~path =
+    get_cursor branch path >>= function
+    | None -> Lwt.return []
+    | Some cursor ->
+        read cursor max_int >|= fun (log, _) ->
+        log
 end

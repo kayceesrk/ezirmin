@@ -3,7 +3,7 @@ PKG irmin
 PKG ptime
 PKG ptime.clock.os
 PKG git
-PKG mirage-tc
+PKG tc
 S src
 S test
 B _build/**
