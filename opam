@@ -14,9 +14,8 @@ depends: [
   "topkg"     	{build}
 	"lwt"
 	"irmin"
-	"irmin.unix"
 	"ptime"
-	"ptime.clock.os"
+	"tc"
 ]
 depopts: []
 build: [
