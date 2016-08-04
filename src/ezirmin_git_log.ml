@@ -3,11 +3,6 @@
 open Irmin_unix
 open Lwt.Infix
 
-module Config = struct
-  let conf = Irmin_git.config ()
-  let task = Irmin_unix.task
-end
-
 module Log(V: Tc.S0) = struct
 
   module Path = Irmin.Path.String_list
