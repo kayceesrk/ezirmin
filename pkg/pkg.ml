@@ -7,5 +7,5 @@ let () =
   Pkg.describe "ezirmin" @@ fun c ->
   Ok [
     Pkg.mllib "src/ezirmin.mllib";
-    Pkg.test "test/test";
+    Pkg.test "test/test_git_log";
   ]
