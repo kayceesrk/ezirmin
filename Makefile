@@ -6,6 +6,6 @@ doc:
 
 clean:
 	find . -name *~ | xargs rm -f
-	rm -rf _build slacklogger slacklogger.install
+	rm -rf _build
 
 .PHONY: doc

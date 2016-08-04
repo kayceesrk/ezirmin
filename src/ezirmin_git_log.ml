@@ -160,7 +160,7 @@ module Make(V:Tc.S0) : S with type elt = V.t = struct
   let merge_exn b ~into = Store.merge_exn "" b ~into
 
   let append t ~path e =
-    let index = path @ ["index"] in
+    let head = path @ ["head"] in
 
     (* TODO: Optimize *)
     let get_filename e =
@@ -172,21 +172,23 @@ module Make(V:Tc.S0) : S with type elt = V.t = struct
       res
     in
 
-    Store.read (t "read") index >>= function
+    Store.read (t "read") head >>= function
     | None ->
         let v = L.mk_value e None in
         Lwt_log.debug_f "append.None" >>= fun () ->
-        Store.update (t "update index : None") index v
+        Store.update (t "Create head") head v
     | Some prev ->
-        let prev_filename = path @ [get_filename prev] in
+        let prev_fn = get_filename prev in
+        let prev_path = path @ [prev_fn] in
+        let prev_path_short = path @ [String.sub prev_fn 0 7] in
         Lwt_log.debug_f "append.Some" >>= fun () ->
-        Store.update (t @@ "update prev : " ^ String.concat "/" prev_filename) prev_filename prev >>= fun () ->
-        Store.update (t @@ "update index : Some " ^ String.concat "/" prev_filename) index @@ L.mk_value e (Some prev_filename)
+        Store.update (t @@ "Copy head to " ^ String.concat "/" prev_path_short) prev_path prev >>= fun () ->
+        Store.update (t @@ "Update head: prev=" ^ String.concat "/" prev_path_short) head @@ L.mk_value e (Some prev_path)
 
   let get_cursor branch ~path =
     let open L in
     let mk_cursor cache = Lwt.return @@ Some {seen = PathSet.singleton path; cache; branch} in
-    Store.read (branch "read") (path @ ["index"]) >>= function
+    Store.read (branch "read") (path @ ["head"]) >>= function
     | None -> Lwt.return None
     | Some (Value v) -> mk_cursor [v]
     | Some (Merge l) -> mk_cursor l

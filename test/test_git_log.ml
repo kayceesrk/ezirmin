@@ -45,8 +45,9 @@ let test_branch_append_read_incr () =
   init "/tmp/ezirmin" false >>= master >>= fun m ->
   clone_force m "working" >>= fun w ->
   append_msgs w ["working.1"; "working.2"] >>= fun () ->
-  M.merge_exn w ~into:m >>= fun () ->
   append_msgs m ["master.5"; "master.6"] >>= fun () ->
+  M.merge_exn w ~into:m >>= fun () ->
+  append_msgs m ["master.7"; "master.8"] >>= fun () ->
   read_all_incrementally m
 
 
