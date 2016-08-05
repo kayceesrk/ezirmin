@@ -95,7 +95,7 @@ module type Log = sig
       @return a function to disable the watch. *)
 
   val uninstall_listener : unit -> unit
-  (** Stop the thread started by {!install_dir_polling_listener}. *)
+  (** Stop the thread started by {!install_listener}. *)
 
 end
 
