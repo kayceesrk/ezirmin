@@ -24,4 +24,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_cursor&nbsp;:&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cursor&nbsp;option&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;read&nbsp;:&nbsp;cursor&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;num_items:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(elt&nbsp;list&nbsp;*&nbsp;cursor&nbsp;option)&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;read_all&nbsp;:&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;elt&nbsp;list&nbsp;<span class="constructor">Lwt</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;install_listener&nbsp;:&nbsp;float&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;watch&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(elt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="constructor">Lwt</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="constructor">Lwt</span>.t)&nbsp;<span class="constructor">Lwt</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;uninstall_listener&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
 &nbsp;&nbsp;<span class="keyword">end</span></code></body></html>

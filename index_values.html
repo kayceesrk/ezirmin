@@ -45,6 +45,11 @@
 Initialize and connect to the repository in a backend specific manner.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Log.html#VALinstall_listener">install_listener</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<td><div class="info">
+Create a thread that actively polls for change.
+</div>
+</td></tr>
 <tr><td align="left"><br>M</td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALmaster">master</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
 <td><div class="info">
@@ -67,6 +72,18 @@ Initialize and connect to the repository in a backend specific manner.
 <td><div class="info">
 <code class="code">read_all b p</code> reads all the messages in the log at path <code class="code">p</code> in the branch
       <code class="code">b</code> in reverse chronological order.
+</div>
+</td></tr>
+<tr><td align="left"><br>U</td></tr>
+<tr><td><a href="Ezirmin.Log.html#VALuninstall_listener">uninstall_listener</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<td><div class="info">
+Stop the thread started by <code class="code">install_dir_polling_listener</code>.
+</div>
+</td></tr>
+<tr><td align="left"><br>W</td></tr>
+<tr><td><a href="Ezirmin.Log.html#VALwatch">watch</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<td><div class="info">
+<code class="code">watch b p cb</code> watches the log at the path <code class="code">b</code> in the branch <code class="code">b</code>.
 </div>
 </td></tr>
 </table>
