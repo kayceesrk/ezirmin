@@ -113,11 +113,11 @@ module type S = sig
   type repo
   type branch
 
-  val init        : root:string -> bare:bool -> repo Lwt.t
+  val init        : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
   val master      : repo -> branch Lwt.t
   val get_branch  : repo -> branch_name:string -> branch Lwt.t
   val clone_force : branch -> string -> branch Lwt.t
-  val merge_exn   : branch -> into:branch -> unit Lwt.t
+  val merge       : branch -> into:branch -> unit Lwt.t
 
   type elt
   type cursor
@@ -128,10 +128,10 @@ module type S = sig
   val read_all   : branch -> path:string list -> elt list Lwt.t
 end
 
-module Make(V:Tc.S0) : S with type elt = V.t = struct
+module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
 
   module L = Log(V)
-  module Store = Irmin_git.FS(L)(Irmin.Ref.String)(Irmin.Hash.SHA1)
+  module Store = Backend(L)(Irmin.Ref.String)(Irmin.Hash.SHA1)
 
   type repo = Store.Repo.t
   type elt = V.t
@@ -145,14 +145,14 @@ module Make(V:Tc.S0) : S with type elt = V.t = struct
       cache  : L.log_item list;
       branch : branch }
 
-  let init ~root ~bare =
-    let config = Irmin_git.config ~root ~bare () in
+  let init ?root ?bare () =
+    let config = Irmin_git.config ?root ?bare () in
     Store.Repo.create config
 
   let master = Store.master task
   let clone_force t name = Store.clone_force task (t "cloning") name
   let get_branch r ~branch_name = Store.of_branch_id task branch_name r
-  let merge_exn b ~into = Store.merge_exn "" b ~into
+  let merge b ~into = Store.merge_exn "" b ~into
 
   let append t ~path e =
     let head = path @ ["head"] in

@@ -6,7 +6,7 @@
 
 open Lwt.Infix
 
-module M = Ezirmin.Git_log.Make(Tc.String)
+module M = Ezirmin.Git_FS_log(Tc.String)
 open M
 
 let rec append_msgs m = function
@@ -29,32 +29,41 @@ let read_all_incrementally m =
 
 let test_append_read_all () =
   Printf.printf "\n(** append and read all **)\n";
-  init "/tmp/ezirmin" false >>= master >>= fun m ->
+  init ~root:"/tmp/ezirmin" () >>= master >>= fun m ->
   append_msgs m ["master.1"; "master.2"] >>= fun () ->
   read_all m [] >|= fun l ->
   List.iter (fun s -> Printf.printf "%s\n" s) l
 
 let test_append_read_incr () =
   Printf.printf "\n(** append and read incrementally **)\n";
-  init "/tmp/ezirmin" false >>= master >>= fun m ->
+  init ~root:"/tmp/ezirmin" () >>= master >>= fun m ->
   append_msgs m ["master.3"; "master.4"] >>= fun () ->
   read_all_incrementally m
 
 let test_branch_append_read_incr () =
   Printf.printf "\n(** branch, append and read incrementally **)\n";
-  init "/tmp/ezirmin" false >>= master >>= fun m ->
+  init ~root:"/tmp/ezirmin" () >>= master >>= fun m ->
   clone_force m "working" >>= fun w ->
   append_msgs w ["working.1"; "working.2"] >>= fun () ->
   append_msgs m ["master.5"; "master.6"] >>= fun () ->
-  M.merge_exn w ~into:m >>= fun () ->
+  M.merge w ~into:m >>= fun () ->
   append_msgs m ["master.7"; "master.8"] >>= fun () ->
   read_all_incrementally m
+
+let test_get_branch () =
+  Printf.printf "\n(** branch, append and read incrementally **)\n";
+  init ~root:"/tmp/ezirmin" () >>= fun r ->
+  get_branch r "foobar" >>= fun fb ->
+  append_msgs fb ["foobar.1"; "foobar.2"] >>= fun () ->
+  read_all fb [] >|= fun l ->
+  List.iter (fun s -> Printf.printf "%s\n" s) l
 
 
 let _ = Lwt_main.run (
   test_append_read_all () >>=
   test_append_read_incr >>=
-  test_branch_append_read_incr
+  test_branch_append_read_incr >>=
+  test_get_branch
 )
 
 (*---------------------------------------------------------------------------

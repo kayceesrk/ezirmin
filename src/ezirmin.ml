@@ -5,7 +5,12 @@
   ---------------------------------------------------------------------------*)
 
 
-module Git_log = Ezirmin_git_log
+module type Log = Ezirmin_git_log.S
+
+module Git_FS_log(V:Tc.S0) =
+  Ezirmin_git_log.Make(Irmin_unix.Irmin_git.FS)(V)
+module Git_Memory_log(V:Tc.S0) =
+  Ezirmin_git_log.Make(Irmin_unix.Irmin_git.Memory)(V)
 
 
 (*---------------------------------------------------------------------------

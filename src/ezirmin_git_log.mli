@@ -2,11 +2,11 @@ module type S = sig
   type repo
   type branch
 
-  val init        : root:string -> bare:bool -> repo Lwt.t
+  val init        : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
   val master      : repo -> branch Lwt.t
   val get_branch  : repo -> branch_name:string -> branch Lwt.t
   val clone_force : branch -> string -> branch Lwt.t
-  val merge_exn   : branch -> into:branch -> unit Lwt.t
+  val merge       : branch -> into:branch -> unit Lwt.t
 
   type elt
   type cursor
@@ -17,4 +17,6 @@ module type S = sig
   val read_all   : branch -> path:string list -> elt list Lwt.t
 end
 
-module Make(V:Tc.S0) : S with type elt = V.t
+module Make
+  (Backend : Irmin.S_MAKER)
+  (V : Tc.S0) : S with type elt = V.t

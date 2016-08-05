@@ -6,7 +6,7 @@ ezirmin is TODO
 
 ezirmin is distributed under the ISC license.
 
-Homepage: https://github.com/kayceesrk/ezirmin  
+Homepage: https://github.com/kayceesrk/ezirmin
 Contact: KC Sivaramakrishnan `<sk826@cl.cam.ac.uk>`
 
 ## Installation
@@ -36,4 +36,4 @@ In the distribution sample programs and tests are located in the
 [`test`](test) directory of the distribution. They can be built and run
 with:
 
-    topkg build --tests true && topkg test 
+    topkg build --tests true && topkg test
