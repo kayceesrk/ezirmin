@@ -32,17 +32,17 @@ module Log(V: Tc.S0) = struct
 
   type log_item =
     { time       : Time.t;
-      value      : V.t;
+      message    : V.t;
       prev       : K.t }
 
   module Value = Tc.Biject
     (Tc.Pair (Tc.Pair(Time)(V))(K))
     (struct
       type t = log_item
-      let to_t ((time,value), prev) =
-        {time; value; prev}
-      let of_t {time;value;prev} =
-        (time,value),prev
+      let to_t ((time,message), prev) =
+        {time; message; prev}
+      let of_t {time;message;prev} =
+        (time,message),prev
     end)
 
   module Merge = Tc.List(Value)
@@ -104,8 +104,8 @@ module Log(V: Tc.S0) = struct
       ok @@ Merge (sort @@ lv1 @ lv2)
       in fun _path -> Irmin.Merge.option (module C) merge
 
-   let mk_value value prev =
-     C.Value {time = Ptime_clock.now(); prev; value}
+   let mk_value message prev =
+     C.Value {time = Ptime_clock.now(); prev; message}
 
 end
 
@@ -126,6 +126,11 @@ module type S = sig
   val get_cursor : branch -> path:string list -> cursor option Lwt.t
   val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
   val read_all   : branch -> path:string list -> elt list Lwt.t
+
+  val install_listener   : float -> unit
+  val watch : branch -> path:string list -> (elt -> unit Lwt.t)
+              -> (unit -> unit Lwt.t) Lwt.t
+  val uninstall_listener : unit -> unit
 end
 
 module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
@@ -154,8 +159,10 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
   let get_branch r ~branch_name = Store.of_branch_id task branch_name r
   let merge b ~into = Store.merge_exn "" b ~into
 
+  let head_name = "head"
+
   let append t ~path e =
-    let head = path @ ["head"] in
+    let head = path @ [head_name] in
 
     (* TODO: Optimize *)
     let get_filename e =
@@ -183,7 +190,7 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
   let get_cursor branch ~path =
     let open L in
     let mk_cursor cache = Lwt.return @@ Some {seen = PathSet.singleton path; cache; branch} in
-    Store.read (branch "read") (path @ ["head"]) >>= function
+    Store.read (branch "read") (path @ [head_name]) >>= function
     | None -> Lwt.return None
     | Some (Value v) -> mk_cursor [v]
     | Some (Merge l) -> mk_cursor l
@@ -194,24 +201,24 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
     else begin
       match cursor.cache with
       | [] -> Lwt.return (List.rev acc, None)
-      | {value; prev = None; _}::xs ->
+      | {message; prev = None; _}::xs ->
           Lwt_log.debug_f "read_log.Value.None" >>= fun () ->
-          read_log {cursor with cache = xs} (num_items - 1) (value::acc)
-      | {value; prev = Some path; _}::xs ->
+          read_log {cursor with cache = xs} (num_items - 1) (message::acc)
+      | {message; prev = Some path; _}::xs ->
           if PathSet.mem path cursor.seen then
             Lwt_log.debug_f "read_log.Value.Some.seen" >>= fun () ->
-            read_log {cursor with cache = xs} (num_items - 1) (value::acc)
+            read_log {cursor with cache = xs} (num_items - 1) (message::acc)
           else
             let seen = PathSet.add path cursor.seen in
             Store.read_exn (cursor.branch "read") path >>= function
             | Value v ->
                 Lwt_log.debug_f "read_log.Value.Some.unseen.Value" >>= fun () ->
                 read_log {cursor with seen; cache = sort (v::xs)}
-                  (num_items - 1) (value::acc)
+                  (num_items - 1) (message::acc)
             | Merge l ->
                 Lwt_log.debug_f "read_log.Value.Some.unseen.Merge" >>= fun () ->
                 read_log {cursor with seen; cache = sort (l @ xs)}
-                  (num_items - 1) (value::acc)
+                  (num_items - 1) (message::acc)
     end
 
   let read cursor ~num_items =
@@ -223,4 +230,14 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
     | Some cursor ->
         read cursor max_int >|= fun (log, _) ->
         log
+
+  let install_listener = install_dir_polling_listener
+  let uninstall_listener = uninstall_dir_polling_listener
+
+  let watch branch ~path callback =
+    let open L in
+    Store.watch_key (branch "watch") (path @ [head_name]) (function
+    | `Added (_, Value {message; _}) -> callback message
+    | `Updated (_, (_,Value {message; _})) -> callback message
+    | _ -> Lwt.return ())
 end

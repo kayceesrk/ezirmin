@@ -46,24 +46,35 @@ let test_branch_append_read_incr () =
   clone_force m "working" >>= fun w ->
   append_msgs w ["working.1"; "working.2"] >>= fun () ->
   append_msgs m ["master.5"; "master.6"] >>= fun () ->
-  M.merge w ~into:m >>= fun () ->
+  merge w ~into:m >>= fun () ->
   append_msgs m ["master.7"; "master.8"] >>= fun () ->
   read_all_incrementally m
 
 let test_get_branch () =
-  Printf.printf "\n(** branch, append and read incrementally **)\n";
+  Printf.printf "\n(** get branch **)\n";
   init ~root:"/tmp/ezirmin" () >>= fun r ->
   get_branch r "foobar" >>= fun fb ->
   append_msgs fb ["foobar.1"; "foobar.2"] >>= fun () ->
   read_all fb [] >|= fun l ->
   List.iter (fun s -> Printf.printf "%s\n" s) l
 
+let test_watch () =
+  Printf.printf "\n(** watch **)\n%!";
+  init ~root:"/tmp/ezirmin" () >>= master >>= fun m ->
+  install_listener 0.1;
+  watch m [] (Lwt_io.printf "%s\n") >>= fun unwatch ->
+  Printf.printf "polling threads = %d\n%!" @@ Irmin_unix.polling_threads ();
+  append_msgs m ["master.9"; "master.10"; "master.11"] >>= fun () ->
+  unwatch () >>= fun () -> (* stop watching *)
+  append_msgs m ["master.12"; "master.13"; "master.14"] >|=
+  uninstall_listener
 
 let _ = Lwt_main.run (
-  test_append_read_all () >>=
+  (* test_append_read_all () >>=
   test_append_read_incr >>=
   test_branch_append_read_incr >>=
-  test_get_branch
+  test_get_branch *)
+  test_watch ()
 )
 
 (*---------------------------------------------------------------------------

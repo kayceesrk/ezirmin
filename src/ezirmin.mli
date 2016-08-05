@@ -81,6 +81,22 @@ module type Log = sig
   val read_all : branch -> path:string list -> elt list Lwt.t
   (** [read_all b p] reads all the messages in the log at path [p] in the branch
       [b] in reverse chronological order. *)
+
+  val install_listener : float -> unit
+  (** Create a thread that actively polls for change. The parameter is the thread sleep
+      time. Prefer {{:https://opam.ocaml.org/packages/inotify/inotify.2.0/}inotify}
+      if it works on your system. *)
+
+  val watch : branch -> path:string list -> (elt -> unit Lwt.t) -> (unit -> unit Lwt.t) Lwt.t
+  (** [watch b p cb] watches the log at the path [b] in the branch [b]. On each
+      append of a message [m] to the log, the callback function [cb m] is
+      invoked. Before installing watches, a listener thread must be started with
+      {!install_listener} that watches the stores for changes.
+      @return a function to disable the watch. *)
+
+  val uninstall_listener : unit -> unit
+  (** Stop the thread started by {!install_dir_polling_listener}. *)
+
 end
 
 
