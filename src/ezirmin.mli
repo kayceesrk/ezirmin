@@ -19,6 +19,8 @@ module type Log = sig
       operations. Logs can be read in reverse chronological order. Logs also
       provide support for paginated reads. *)
 
+  (** {2 Repo operations} *)
+
   type repo
   (** The type of repository handles. A repository contains a set of branches. *)
 
@@ -51,6 +53,8 @@ module type Log = sig
   val merge : branch -> into:branch -> unit Lwt.t
   (** [merge w m] merges branch [w] into [m]. Merge will always succeed. After
       the merge the branch [w] continues to exist. *)
+
+  (** {2 Log operations} *)
 
   type elt
   (** The type of value stored in the log. *)
@@ -88,10 +92,10 @@ module type Log = sig
       if it works on your system. *)
 
   val watch : branch -> path:string list -> (elt -> unit Lwt.t) -> (unit -> unit Lwt.t) Lwt.t
-  (** [watch b p cb] watches the log at the path [b] in the branch [b]. On each
+  (** [watch b p cb] watches the log at the path [p] in the branch [b]. On each
       append of a message [m] to the log, the callback function [cb m] is
       invoked. Before installing watches, a listener thread must be started with
-      {!install_listener} that watches the stores for changes.
+      {!install_listener} that watches the store for changes.
       @return a function to disable the watch. *)
 
   val uninstall_listener : unit -> unit
