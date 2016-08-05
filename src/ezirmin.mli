@@ -12,6 +12,13 @@
 
 module type Log = sig
 
+  (** {1 Append-only logs} *)
+
+  (** [Log] provides mergeable append-only logs with support for paginated
+      reads. Appending messages to logs and merging two logs are constant time
+      operations. Logs can be read in reverse chronological order. Logs also
+      provide support for paginated reads. *)
+
   type repo
   (** The type of repository handles. A repository contains a set of branches. *)
 
