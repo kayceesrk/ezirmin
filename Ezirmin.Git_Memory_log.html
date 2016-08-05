@@ -10,7 +10,8 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Index of module types" rel=Appendix href="index_module_types.html">
-<link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><title>Ezirmin.Git_Memory_log</title>
+<link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><link title="Append-only logs" rel="Section" href="#1_Appendonlylogs">
+<title>Ezirmin.Git_Memory_log</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Ezirmin.Git_FS_log.html" title="Ezirmin.Git_FS_log">Previous</a>
@@ -36,6 +37,13 @@ A log abstraction that uses the git in-memory backend.<br>
 </tr>
 </table>
 <hr width="100%">
+<br>
+<h1 id="1_Appendonlylogs">Append-only logs</h1><br>
+<br>
+<code class="code"><span class="constructor">Log</span></code> provides mergeable append-only logs with support for paginated
+      reads. Appending messages to logs and merging two logs are constant time
+      operations. Logs can be read in reverse chronological order. Logs also
+      provide support for paginated reads.<br>
 
 <pre><span id="TYPErepo"><span class="keyword">type</span> <code class="type"></code>repo</span> </pre>
 <div class="info ">
