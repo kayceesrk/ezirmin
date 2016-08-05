@@ -120,10 +120,10 @@ Create a thread that actively polls for change. The parameter is the thread slee
 </div>
 
 <pre><span id="VALwatch"><span class="keyword">val</span> watch</span> : <code class="type"><a href="Ezirmin.Log.html#TYPEbranch">branch</a> -><br>       path:string list -><br>       (<a href="Ezirmin.Log.html#TYPEelt">elt</a> -> unit Lwt.t) -> (unit -> unit Lwt.t) Lwt.t</code></pre><div class="info ">
-<code class="code">watch b p cb</code> watches the log at the path <code class="code">b</code> in the branch <code class="code">b</code>. On each
+<code class="code">watch b p cb</code> watches the log at the path <code class="code">p</code> in the branch <code class="code">b</code>. On each
       append of a message <code class="code">m</code> to the log, the callback function <code class="code">cb m</code> is
       invoked. Before installing watches, a listener thread must be started with
-      <a href="Ezirmin.Log.html#VALinstall_listener"><code class="code"><span class="constructor">Ezirmin</span>.<span class="constructor">Log</span>.install_listener</code></a> that watches the stores for changes.<br>
+      <a href="Ezirmin.Log.html#VALinstall_listener"><code class="code"><span class="constructor">Ezirmin</span>.<span class="constructor">Log</span>.install_listener</code></a> that watches the store for changes.<br>
 <b>Returns</b> a function to disable the watch.<br>
 </div>
 
