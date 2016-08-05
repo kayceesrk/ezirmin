@@ -11,6 +11,8 @@
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><link title="Append-only logs" rel="Section" href="#1_Appendonlylogs">
+<link title="Repo operations" rel="Subsection" href="#2_Repooperations">
+<link title="Log operations" rel="Subsection" href="#2_Logoperations">
 <title>Ezirmin.Git_Memory_log</title>
 </head>
 <body>
@@ -44,6 +46,8 @@ A log abstraction that uses the git in-memory backend.<br>
       reads. Appending messages to logs and merging two logs are constant time
       operations. Logs can be read in reverse chronological order. Logs also
       provide support for paginated reads.<br>
+<br>
+<h2 id="2_Repooperations">Repo operations</h2><br>
 
 <pre><span id="TYPErepo"><span class="keyword">type</span> <code class="type"></code>repo</span> </pre>
 <div class="info ">
@@ -90,6 +94,8 @@ Initialize and connect to the repository in a backend specific manner.
 <code class="code">merge w m</code> merges branch <code class="code">w</code> into <code class="code">m</code>. Merge will always succeed. After
       the merge the branch <code class="code">w</code> continues to exist.<br>
 </div>
+<br>
+<h2 id="2_Logoperations">Log operations</h2><br>
 
 <pre><span id="TYPEelt"><span class="keyword">type</span> <code class="type"></code>elt</span> </pre>
 <div class="info ">
