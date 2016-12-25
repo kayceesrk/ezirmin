@@ -61,20 +61,18 @@ let test_get_branch () =
 let test_watch () =
   Printf.printf "\n(** watch **)\n%!";
   init ~root:"/tmp/ezirmin" () >>= master >>= fun m ->
-  install_listener 0.1;
+  install_listener ();
   watch m [] (Lwt_io.printf "%s\n") >>= fun unwatch ->
-  Printf.printf "polling threads = %d\n%!" @@ Irmin_unix.polling_threads ();
   append_msgs m ["master.9"; "master.10"; "master.11"] >>= fun () ->
   unwatch () >>= fun () -> (* stop watching *)
-  append_msgs m ["master.12"; "master.13"; "master.14"] >|=
-  uninstall_listener
+  append_msgs m ["master.12"; "master.13"; "master.14"]
 
 let _ = Lwt_main.run (
-  (* test_append_read_all () >>=
+  test_append_read_all () >>=
   test_append_read_incr >>=
   test_branch_append_read_incr >>=
-  test_get_branch *)
-  test_watch ()
+  test_get_branch >>=
+  test_watch
 )
 
 (*---------------------------------------------------------------------------
