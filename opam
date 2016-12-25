@@ -17,7 +17,6 @@ depends: [
   "irmin"				{>= "0.12.0"}
 	"irmin-watcher"
   "ptime"
-  "mirage-tc"
 ]
 depopts: []
 build: [
