@@ -127,10 +127,9 @@ module type S = sig
   val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
   val read_all   : branch -> path:string list -> elt list Lwt.t
 
-  val install_listener   : float -> unit
+  val install_listener : unit -> unit
   val watch : branch -> path:string list -> (elt -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t
-  val uninstall_listener : unit -> unit
 end
 
 module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
@@ -231,8 +230,7 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
         read cursor max_int >|= fun (log, _) ->
         log
 
-  let install_listener = install_dir_polling_listener
-  let uninstall_listener = uninstall_dir_polling_listener
+  let install_listener = set_listen_dir_hook
 
   let watch branch ~path callback =
     let open L in

@@ -16,10 +16,9 @@ module type S = sig
   val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
   val read_all   : branch -> path:string list -> elt list Lwt.t
 
-  val install_listener   : float -> unit
+  val install_listener : unit -> unit
   val watch : branch -> path:string list -> (elt -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t
-  val uninstall_listener : unit -> unit
 end
 
 module Make
