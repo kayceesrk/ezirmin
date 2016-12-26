@@ -31,9 +31,9 @@ module Log(V: Tc.S0) = struct
   module K = Tc.Option(Tc.List(Tc.String))
 
   type log_item =
-    { time       : Time.t;
-      message    : V.t;
-      prev       : K.t }
+    { time    : Time.t;
+      message : V.t;
+      prev    : K.t }
 
   module Value = Tc.Biject
     (Tc.Pair (Tc.Pair(Time)(V))(K))
@@ -118,6 +118,7 @@ module type S = sig
   val get_branch  : repo -> branch_name:string -> branch Lwt.t
   val clone_force : branch -> string -> branch Lwt.t
   val merge       : branch -> into:branch -> unit Lwt.t
+  val install_listener : unit -> unit
 
   type elt
   type cursor
@@ -127,7 +128,6 @@ module type S = sig
   val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
   val read_all   : branch -> path:string list -> elt list Lwt.t
 
-  val install_listener : unit -> unit
   val watch : branch -> path:string list -> (elt -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t
 end
@@ -135,28 +135,18 @@ end
 module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
 
   module L = Log(V)
-  module Store = Backend(L)(Irmin.Ref.String)(Irmin.Hash.SHA1)
 
-  type repo = Store.Repo.t
-  type elt = V.t
-  type branch = string -> Store.t
-  type path = string list
+  module Repo = Ezirmin_repo.Make(Backend)(L)
+  include Repo
 
   module PathSet = Set.Make(Irmin.Path.String_list)
+
+  type elt = V.t
 
   type cursor =
     { seen   : PathSet.t;
       cache  : L.log_item list;
       branch : branch }
-
-  let init ?root ?bare () =
-    let config = Irmin_git.config ?root ?bare () in
-    Store.Repo.create config
-
-  let master = Store.master task
-  let clone_force t name = Store.clone_force task (t "cloning") name
-  let get_branch r ~branch_name = Store.of_branch_id task branch_name r
-  let merge b ~into = Store.merge_exn "" b ~into
 
   let head_name = "head"
 
@@ -229,8 +219,6 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
     | Some cursor ->
         read cursor max_int >|= fun (log, _) ->
         log
-
-  let install_listener = set_listen_dir_hook
 
   let watch branch ~path callback =
     let open L in

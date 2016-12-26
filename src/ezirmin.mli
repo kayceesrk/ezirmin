@@ -10,16 +10,11 @@
 
 (** {1 Ezirmin} *)
 
-module type Log = sig
+module type Repo = sig
 
-  (** {1 Append-only logs} *)
+  (** {1 Repo operations} *)
 
-  (** [Log] provides mergeable append-only logs with support for paginated
-      reads. Appending messages to logs and merging two logs are constant time
-      operations. Logs can be read in reverse chronological order. Logs also
-      provide support for paginated reads. *)
-
-  (** {2 Repo operations} *)
+  (** [Repo] provides operations on repositories. *)
 
   type repo
   (** The type of repository handles. A repository contains a set of branches. *)
@@ -54,7 +49,22 @@ module type Log = sig
   (** [merge w m] merges branch [w] into [m]. Merge will always succeed. After
       the merge the branch [w] continues to exist. *)
 
-  (** {2 Log operations} *)
+  val install_listener : unit -> unit
+  (** Create a thread that actively polls for change. Prefer
+      {{:https://opam.ocaml.org/packages/inotify/inotify.2.0/}inotify} if it
+      works on your system. *)
+end
+
+module type Log = sig
+
+  (** {1 Append-only logs} *)
+
+  (** [Log] provides mergeable append-only logs with support for paginated
+      reads. Appending messages to logs and merging two logs are constant time
+      operations. Logs can be read in reverse chronological order. Logs also
+      provide support for paginated reads. *)
+
+  include Repo
 
   type elt
   (** The type of value stored in the log. *)
@@ -86,27 +96,56 @@ module type Log = sig
   (** [read_all b p] reads all the messages in the log at path [p] in the branch
       [b] in reverse chronological order. *)
 
-  (** {3 Watch} *)
-
-  val install_listener : unit -> unit
-  (** Create a thread that actively polls for change. Prefer
-      {{:https://opam.ocaml.org/packages/inotify/inotify.2.0/}inotify} if it
-      works on your system. *)
+  (** {2 Watch} *)
 
   val watch : branch -> path:string list -> (elt -> unit Lwt.t) -> (unit -> unit Lwt.t) Lwt.t
   (** [watch b p cb] watches the log at the path [p] in the branch [b]. On each
       append of a message [m] to the log, the callback function [cb m] is
       invoked. Before installing watches, a listener thread must be started
-      with {!install_listener} that watches the store for changes. @return a
-      function to disable the watch. *)
-
+      with {!install_listener} that watches the store for changes.
+      @return a function to disable the watch. *)
 end
 
-module Git_FS_log (V : Tc.S0) : Log with type elt = V.t
+module FS_log (V : Tc.S0) : Log with type elt = V.t
 (** A log abstraction that uses the git filesystem backend. *)
 
-module Git_Memory_log (V : Tc.S0) : Log with type elt = V.t
+module Memory_log (V : Tc.S0) : Log with type elt = V.t
 (** A log abstraction that uses the git in-memory backend. *)
+
+module type Lww_register = sig
+
+  (** {1 Last-write-wins register} *)
+
+  (** [Lww_register] provides registers that can be read and written to. In
+      case of conflicting writes, the latest write wins. *)
+
+  include Repo
+
+  type value
+  (** The type of content stored in the register. *)
+
+  val read : branch -> path:string list -> value option Lwt.t
+  (** [read b p] fetches the value of the register at path [b] in the branch
+      [b]. If the register had not been previously written to, then the
+      operation returns [None]. *)
+
+  val write : branch -> path:string list -> value -> unit Lwt.t
+  (** [write b p v] updates the value of the register at path [b] in branch [b]
+      to [v]. *)
+
+  val watch : branch -> path:string list
+              -> ([ `Added of value | `Removed of value | `Updated of value * value ] -> unit Lwt.t)
+              -> (unit -> unit Lwt.t) Lwt.t
+  (** [watch b p cb] watches the register at path [p] in the branch [b], where
+      [cb] is the callback function.
+      @return a function to disable the watch. *)
+end
+
+module FS_lww_register (V : Tc.S0) : Lww_register with type value = V.t
+(** An Lww_reigster that uses the git filesystem backend. *)
+
+module Memory_lww_register (V : Tc.S0) : Lww_register with type value = V.t
+(** An Lww_register abstraction that uses the git in-memory backend. *)
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2016 KC Sivaramakrishnan

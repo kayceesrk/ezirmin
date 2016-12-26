@@ -7,6 +7,7 @@ module type S = sig
   val get_branch  : repo -> branch_name:string -> branch Lwt.t
   val clone_force : branch -> string -> branch Lwt.t
   val merge       : branch -> into:branch -> unit Lwt.t
+  val install_listener : unit -> unit
 
   type elt
   type cursor
@@ -16,7 +17,6 @@ module type S = sig
   val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
   val read_all   : branch -> path:string list -> elt list Lwt.t
 
-  val install_listener : unit -> unit
   val watch : branch -> path:string list -> (elt -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t
 end

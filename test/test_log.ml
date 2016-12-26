@@ -6,7 +6,7 @@
 
 open Lwt.Infix
 
-module M = Ezirmin.Git_FS_log(Tc.String)
+module M = Ezirmin.FS_log(Tc.String)
 open M
 
 let rec append_msgs m = function

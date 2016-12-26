@@ -4,14 +4,31 @@
    %%NAME%% %%VERSION%%
   ---------------------------------------------------------------------------*)
 
+module type Repo = sig
+  type repo
+  type branch
 
-module type Log = Ezirmin_git_log.S
+  val init        : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
+  val master      : repo -> branch Lwt.t
+  val get_branch  : repo -> branch_name:string -> branch Lwt.t
+  val clone_force : branch -> string -> branch Lwt.t
+  val merge       : branch -> into:branch -> unit Lwt.t
+  val install_listener : unit -> unit
+end
 
-module Git_FS_log(V:Tc.S0) =
-  Ezirmin_git_log.Make(Irmin_unix.Irmin_git.FS)(V)
-module Git_Memory_log(V:Tc.S0) =
-  Ezirmin_git_log.Make(Irmin_unix.Irmin_git.Memory)(V)
+module type Log = Ezirmin_log.S
 
+module FS_log(V:Tc.S0) =
+  Ezirmin_log.Make(Irmin_unix.Irmin_git.FS)(V)
+module Memory_log(V:Tc.S0) =
+  Ezirmin_log.Make(Irmin_unix.Irmin_git.Memory)(V)
+
+module type Lww_register = Ezirmin_lww_register.S
+
+module FS_lww_register (V : Tc.S0) =
+  Ezirmin_lww_register.Make(Irmin_unix.Irmin_git.FS)(V)
+module Memory_lww_register (V : Tc.S0) =
+  Ezirmin_lww_register.Make(Irmin_unix.Irmin_git.Memory)(V)
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2016 KC Sivaramakrishnan
