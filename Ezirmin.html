@@ -10,6 +10,9 @@
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><link title="Ezirmin" rel="Section" href="#1_Ezirmin">
+<link title="Mergeable datastructures" rel="Subsection" href="#2_Mergeabledatastructures">
+<link title="File system backend" rel="Subsection" href="#2_Filesystembackend">
+<link title="In-memory backend" rel="Subsection" href="#2_Inmemorybackend">
 <title>Ezirmin</title>
 </head>
 <body>
@@ -21,34 +24,44 @@
 An easy interface on top of the Irmin library.
 <p>
 
-    <em>a173999 — <a href="https://github.com/kayceesrk/ezirmin ">homepage</a></em><br>
+    <em>df52c8f — <a href="https://github.com/kayceesrk/ezirmin ">homepage</a></em><br>
 </div>
 <hr width="100%">
 <br>
 <h1 id="1_Ezirmin">Ezirmin</h1><br>
 
-<pre><span class="keyword">module type</span> <a href="Ezirmin.Repo.html">Repo</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Repo.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module type</span> <a href="Ezirmin.Repo.html">Repo</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Repo.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><br>
+<h2 id="2_Mergeabledatastructures">Mergeable datastructures</h2><br>
+
 <pre><span class="keyword">module type</span> <a href="Ezirmin.Log.html">Log</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Log.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module type</span> <a href="Ezirmin.Lww_register.html">Lww_register</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Lww_register.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module type</span> <a href="Ezirmin.Queue.html">Queue</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Queue.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><br>
+<h2 id="2_Filesystembackend">File system backend</h2><br>
+<br>
+Mergeable datatypes instantiated with git filesystem backend.<br>
+
 <pre><span class="keyword">module</span> <a href="Ezirmin.FS_log.html">FS_log</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Log.html">Log</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
 A log abstraction that uses the git filesystem backend.
 </div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.FS_lww_register.html">FS_lww_register</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Lww_register.html">Lww_register</a></code><code class="type">  with type value = V.t</code></div></pre><div class="info">
+An Lww_reigster that uses the git filesystem backend.
+</div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.FS_queue.html">FS_queue</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Queue.html">Queue</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
+A Queue that uses the git filesystem backend.
+</div>
+<br>
+<h2 id="2_Inmemorybackend">In-memory backend</h2><br>
+<br>
+Mergeable datatypes instantiated with git in-memory backend.<br>
 
 <pre><span class="keyword">module</span> <a href="Ezirmin.Memory_log.html">Memory_log</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Log.html">Log</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
 A log abstraction that uses the git in-memory backend.
 </div>
 
-<pre><span class="keyword">module type</span> <a href="Ezirmin.Lww_register.html">Lww_register</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Lww_register.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span class="keyword">module</span> <a href="Ezirmin.FS_lww_register.html">FS_lww_register</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Lww_register.html">Lww_register</a></code><code class="type">  with type value = V.t</code></div></pre><div class="info">
-An Lww_reigster that uses the git filesystem backend.
-</div>
-
 <pre><span class="keyword">module</span> <a href="Ezirmin.Memory_lww_register.html">Memory_lww_register</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Lww_register.html">Lww_register</a></code><code class="type">  with type value = V.t</code></div></pre><div class="info">
 An Lww_register abstraction that uses the git in-memory backend.
-</div>
-
-<pre><span class="keyword">module type</span> <a href="Ezirmin.Queue.html">Queue</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Queue.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span class="keyword">module</span> <a href="Ezirmin.FS_queue.html">FS_queue</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Queue.html">Queue</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
-A Queue that uses the git filesystem backend.
 </div>
 
 <pre><span class="keyword">module</span> <a href="Ezirmin.Memory_queue.html">Memory_queue</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Queue.html">Queue</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
