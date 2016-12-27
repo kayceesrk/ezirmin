@@ -58,6 +58,8 @@ module type Repo = sig
       works on your system. *)
 end
 
+(** {2 Mergeable datastructures} *)
+
 module type Log = sig
 
   (** {1 Append-only logs} *)
@@ -109,12 +111,6 @@ module type Log = sig
       @return a function to disable the watch. *)
 end
 
-module FS_log (V : Tc.S0) : Log with type elt = V.t
-(** A log abstraction that uses the git filesystem backend. *)
-
-module Memory_log (V : Tc.S0) : Log with type elt = V.t
-(** A log abstraction that uses the git in-memory backend. *)
-
 module type Lww_register = sig
 
   (** {1 Last-write-wins register} *)
@@ -144,15 +140,9 @@ module type Lww_register = sig
       @return a function to disable the watch. *)
 end
 
-module FS_lww_register (V : Tc.S0) : Lww_register with type value = V.t
-(** An Lww_reigster that uses the git filesystem backend. *)
-
-module Memory_lww_register (V : Tc.S0) : Lww_register with type value = V.t
-(** An Lww_register abstraction that uses the git in-memory backend. *)
-
 module type Queue = sig
 
-  (** {1 Mergable Queue} *)
+  (** {1 Mergeable Queue} *)
 
   (** [Queue] provides double-ended queue with automatic merges. *)
 
@@ -212,8 +202,29 @@ module type Queue = sig
       @return a function to disable the watch. *)
 end
 
+
+(** {2 File system backend} *)
+
+(** Mergeable datatypes instantiated with git filesystem backend. *)
+
+module FS_log (V : Tc.S0) : Log with type elt = V.t
+(** A log abstraction that uses the git filesystem backend. *)
+
+module FS_lww_register (V : Tc.S0) : Lww_register with type value = V.t
+(** An Lww_reigster that uses the git filesystem backend. *)
+
 module FS_queue (V : Tc.S0) : Queue with type elt = V.t
 (** A Queue that uses the git filesystem backend. *)
+
+(** {2 In-memory backend} *)
+
+(** Mergeable datatypes instantiated with git in-memory backend. *)
+
+module Memory_log (V : Tc.S0) : Log with type elt = V.t
+(** A log abstraction that uses the git in-memory backend. *)
+
+module Memory_lww_register (V : Tc.S0) : Lww_register with type value = V.t
+(** An Lww_register abstraction that uses the git in-memory backend. *)
 
 module Memory_queue (V : Tc.S0) : Queue with type elt = V.t
 (** A Queue that uses the git in-memory backend. *)
