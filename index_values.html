@@ -22,15 +22,30 @@
 </div>
 </td></tr>
 <tr><td align="left"><br>C</td></tr>
-<tr><td><a href="Ezirmin.Log.html#VALclone_force">clone_force</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<tr><td><a href="Ezirmin.Repo.html#VALclone_force">clone_force</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 <code class="code">clone_force b n</code> clones the branch <code class="code">b</code> naming the new branch <code class="code">n</code>.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALcreate">create</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Create a new queue.
+</div>
+</td></tr>
 <tr><td align="left"><br>G</td></tr>
-<tr><td><a href="Ezirmin.Log.html#VALget_branch">get_branch</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<tr><td><a href="Ezirmin.Repo.html#VALget_branch">get_branch</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 <code class="code">get_branch repo b</code> fetches the branch <code class="code">b</code> by name.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Repo.html#VALget_branch_name">get_branch_name</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
+<td><div class="info">
+Return the branch name.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALget_cursor">get_cursor</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Return the cursor that points to the head of the queue.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALget_cursor">get_cursor</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
@@ -40,28 +55,73 @@
 </div>
 </td></tr>
 <tr><td align="left"><br>I</td></tr>
-<tr><td><a href="Ezirmin.Log.html#VALinit">init</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<tr><td><a href="Ezirmin.Repo.html#VALinit">init</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 Initialize and connect to the repository in a backend specific manner.
 </div>
 </td></tr>
-<tr><td><a href="Ezirmin.Log.html#VALinstall_listener">install_listener</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<tr><td><a href="Ezirmin.Repo.html#VALinstall_listener">install_listener</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 Create a thread that actively polls for change.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALis_empty">is_empty</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Returns <code class="code"><span class="keyword">true</span></code> if the queue is empty.
+</div>
+</td></tr>
+<tr><td align="left"><br>L</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALlength">length</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Return the length of the queue.
+</div>
+</td></tr>
 <tr><td align="left"><br>M</td></tr>
-<tr><td><a href="Ezirmin.Log.html#VALmaster">master</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<tr><td><a href="Ezirmin.Repo.html#VALmaster">master</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 <code class="code">master repo</code> fetches the master branch of the repository.
 </div>
 </td></tr>
-<tr><td><a href="Ezirmin.Log.html#VALmerge">merge</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<tr><td><a href="Ezirmin.Repo.html#VALmerge">merge</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 <code class="code">merge w m</code> merges branch <code class="code">w</code> into <code class="code">m</code>.
 </div>
 </td></tr>
+<tr><td align="left"><br>N</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALnext">next</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Get the next element in the queue.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALnext_exn">next_exn</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Get the next element in the queue.
+</div>
+</td></tr>
+<tr><td align="left"><br>P</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALpop">pop</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Pop an element from the front of the queue.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALpop_exn">pop_exn</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Pop an element from the front of the queue.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALpush">push</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+<code class="code">push b p e</code> pushes element <code class="code">e</code> to the back of the queue at path <code class="code">p</code> in
+      branch <code class="code">b</code>.
+</div>
+</td></tr>
 <tr><td align="left"><br>R</td></tr>
+<tr><td><a href="Ezirmin.Lww_register.html#VALread">read</a> [<a href="Ezirmin.Lww_register.html">Ezirmin.Lww_register</a>]</td>
+<td><div class="info">
+<code class="code">read b p</code> fetches the value of the register at path <code class="code">b</code> in the branch
+      <code class="code">b</code>.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALread">read</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
 <td><div class="info">
 <code class="code">read c n</code> reads the next <code class="code">n</code> messages in reverse chronological order at
@@ -75,9 +135,27 @@ Create a thread that actively polls for change.
 </div>
 </td></tr>
 <tr><td align="left"><br>W</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALwatch">watch</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+<code class="code">watch b p cb</code> watches the queue at path <code class="code">p</code> in branch <code class="code">b</code>, and invokes
+      the callback function if there are any updates.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Lww_register.html#VALwatch">watch</a> [<a href="Ezirmin.Lww_register.html">Ezirmin.Lww_register</a>]</td>
+<td><div class="info">
+<code class="code">watch b p cb</code> watches the register at path <code class="code">p</code> in the branch <code class="code">b</code>, where
+      <code class="code">cb</code> is the callback function.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALwatch">watch</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
 <td><div class="info">
 <code class="code">watch b p cb</code> watches the log at the path <code class="code">p</code> in the branch <code class="code">b</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Lww_register.html#VALwrite">write</a> [<a href="Ezirmin.Lww_register.html">Ezirmin.Lww_register</a>]</td>
+<td><div class="info">
+<code class="code">write b p v</code> updates the value of the register at path <code class="code">b</code> in branch <code class="code">b</code>
+      to <code class="code">v</code>.
 </div>
 </td></tr>
 </table>
