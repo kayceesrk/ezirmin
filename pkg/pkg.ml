@@ -7,6 +7,6 @@ let () =
   Pkg.describe "ezirmin" @@ fun c ->
   Ok [
     Pkg.mllib "src/ezirmin.mllib";
-    Pkg.test "test/test_log";
-    Pkg.test "test/test_queue";
+    Pkg.test "examples/example_log";
+    Pkg.test "examples/example_queue";
   ]
