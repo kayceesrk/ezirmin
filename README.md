@@ -2,16 +2,19 @@ ezirmin — An easy interface on top of the Irmin library.
 -------------------------------------------------------------------------------
 %%VERSION%%
 
-ezirmin is TODO
+Ezirmin is an easy interface on top of the
+[Irmin](https://github.com/mirage/irmin) library. It comes with set of mergeable
+datatypes, instantiated to specific backends. See the [documentation][doc] for
+the available datatypes and backends.
 
-ezirmin is distributed under the ISC license.
+Ezirmin is distributed under the ISC license.
 
 Homepage: https://github.com/kayceesrk/ezirmin
 Contact: KC Sivaramakrishnan `<sk826@cl.cam.ac.uk>`
 
 ## Installation
 
-ezirmin can be installed with `opam`:
+Ezirmin can be installed with `opam`:
 
     opam install ezirmin
 
@@ -29,7 +32,7 @@ distribution.
 
 ## Sample programs
 
-If you installed ezirmin with `opam` sample programs are located in
+If you installed Ezirmin with `opam` sample programs are located in
 the directory `opam config var ezirmin:doc`.
 
 In the distribution sample programs and tests are located in the

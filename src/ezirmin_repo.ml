@@ -13,7 +13,10 @@ module type S = sig
   val install_listener : unit -> unit
 end
 
-module Make(Backend : Irmin.S_MAKER)(C : Irmin.Contents.S) = struct
+module Make(Backend : Irmin.S_MAKER)(C : Irmin.Contents.S) : sig
+  module Store : (module type of (Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)))
+  include S with type branch = string -> Store.t
+end = struct
 
   module Store = Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)
 
