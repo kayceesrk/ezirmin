@@ -8,4 +8,5 @@ let () =
   Ok [
     Pkg.mllib "src/ezirmin.mllib";
     Pkg.test "test/test_log";
+    Pkg.test "test/test_queue";
   ]

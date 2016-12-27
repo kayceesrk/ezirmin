@@ -4,7 +4,10 @@ true : bin_annot, safe_string, package(bytes)
 
 <src/ezirmin*.{ml,mli}>: \
 	package(lwt), package(irmin), package(irmin-watcher), package(ptime), \
-	package(ptime.clock.os)
+	package(ptime.clock.os), package(git.unix)
+
+<src/ezirmin_queue.{ml,mli}>: \
+	package(lwt), package(irmin), package(irmin-watcher), package(ppx_jane), package(irmin.unix)
 
 <test/test*> : \
 	package(lwt), package(irmin), package(ptime), package(ptime.clock.os), \

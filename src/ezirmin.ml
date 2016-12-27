@@ -8,11 +8,12 @@ module type Repo = sig
   type repo
   type branch
 
-  val init        : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
-  val master      : repo -> branch Lwt.t
-  val get_branch  : repo -> branch_name:string -> branch Lwt.t
+  val init : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
+  val master : repo -> branch Lwt.t
+  val get_branch : repo -> branch_name:string -> branch Lwt.t
+  val get_branch_name : branch -> string option Lwt.t
   val clone_force : branch -> string -> branch Lwt.t
-  val merge       : branch -> into:branch -> unit Lwt.t
+  val merge : branch -> into:branch -> unit Lwt.t
   val install_listener : unit -> unit
 end
 
@@ -29,6 +30,26 @@ module FS_lww_register (V : Tc.S0) =
   Ezirmin_lww_register.Make(Irmin_unix.Irmin_git.FS)(V)
 module Memory_lww_register (V : Tc.S0) =
   Ezirmin_lww_register.Make(Irmin_unix.Irmin_git.Memory)(V)
+
+module type Queue = Ezirmin_queue.S
+
+module Make_git_AO_maker (G : Git.Store.S) (K : Irmin.Hash.S) (V : Tc.S0) = struct
+  module M = Irmin_unix.Irmin_git.AO(G)(K)(V)
+  include M
+
+  let create config =
+    let level = Irmin.Private.Conf.key ~doc:"The Zlib compression level."
+      "level" Irmin.Private.Conf.(some int) None
+    in
+    let root = Irmin.Private.Conf.get config Irmin.Private.Conf.root in
+    let level = Irmin.Private.Conf.get config level in
+    G.create ?root ?level ()
+end
+
+module Memory_queue (V : Tc.S0) =
+  Ezirmin_queue.Make(Make_git_AO_maker(Git_unix.Memory))(Irmin_unix.Irmin_git.Memory)(V)
+module FS_queue (V : Tc.S0) =
+  Ezirmin_queue.Make(Make_git_AO_maker(Git_unix.FS))(Irmin_unix.Irmin_git.Memory)(V)
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2016 KC Sivaramakrishnan

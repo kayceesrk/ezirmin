@@ -4,6 +4,7 @@ PKG ptime
 PKG ptime.clock.os
 PKG git
 PKG tc
+PKG ppx_jane
 S src
 S test
 B _build/**

@@ -110,16 +110,7 @@ module Log(V: Tc.S0) = struct
 end
 
 module type S = sig
-  type repo
-  type branch
-
-  val init        : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
-  val master      : repo -> branch Lwt.t
-  val get_branch  : repo -> branch_name:string -> branch Lwt.t
-  val clone_force : branch -> string -> branch Lwt.t
-  val merge       : branch -> into:branch -> unit Lwt.t
-  val install_listener : unit -> unit
-
+  include Ezirmin_repo.S
   type elt
   type cursor
 

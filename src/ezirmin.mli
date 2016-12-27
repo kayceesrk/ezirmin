@@ -41,6 +41,9 @@ module type Repo = sig
       already exist, then the branch will be created and a handle to it
       returned. *)
 
+  val get_branch_name : branch -> string option Lwt.t
+  (** Return the branch name. Return [None] if the branch is not persistent. *)
+
   val clone_force : branch -> string -> branch Lwt.t
   (** [clone_force b n] clones the branch [b] naming the new branch [n]. If a
       branch named [n] exists, then that branch will be overwritten. *)
@@ -146,6 +149,75 @@ module FS_lww_register (V : Tc.S0) : Lww_register with type value = V.t
 
 module Memory_lww_register (V : Tc.S0) : Lww_register with type value = V.t
 (** An Lww_register abstraction that uses the git in-memory backend. *)
+
+module type Queue = sig
+
+  (** {1 Mergable Queue} *)
+
+  (** [Queue] provides double-ended queue with automatic merges. *)
+
+  include Repo
+
+  type elt
+  (** The type of element in the queue. *)
+
+  val create : branch -> path:string list -> unit Lwt.t
+  (** Create a new queue. If a queue already exists at this path, then this
+      operation overwrites the old queue. *)
+
+  val length : branch -> path:string list -> int Lwt.t
+  (** Return the length of the queue. If the queue does not exist, then [0] is
+      returned. *)
+
+  val is_empty : branch -> path:string list -> bool Lwt.t
+  (** Returns [true] if the queue is empty. If the queue does not exist, then
+      return [true]. *)
+
+  val push : branch -> path:string list -> elt -> unit Lwt.t
+  (** [push b p e] pushes element [e] to the back of the queue at path [p] in
+      branch [b]. If the queue does not exist at this path, then an empty queue
+      is created and [e] is pushed to the back of this queue. *)
+
+  val pop_exn : branch -> path:string list -> elt Lwt.t
+  (** Pop an element from the front of the queue. If the queue is empty or does
+      not exist at this path, then exception [Empty] is raised. *)
+
+  val pop : branch -> path:string list -> elt option Lwt.t
+  (** Pop an element from the front of the queue. If the queue is empty of does
+      not exist at this path, then [None] is returned. *)
+
+  (** {2 Iteration} *)
+
+  type cursor
+  (** The type of cursor. *)
+
+  val get_cursor : branch -> path:string list -> cursor option Lwt.t
+  (** Return the cursor that points to the head of the queue. If the queue does
+      not exist, return [None]. *)
+
+  val next_exn : cursor -> (elt * cursor) Lwt.t
+  (** Get the next element in the queue. Return a pair of the head element and a
+      cursor that points to the tail of the queue. Raise [Empty] if the cursor
+      points to an empty queue. *)
+
+  val next : cursor -> (elt * cursor) option Lwt.t
+  (** Get the next element in the queue. Return a pair of the head element and a
+      cursor that points to the tail of the queue. Return [None] if the cursor
+      points to an empty queue. *)
+
+  val watch : branch -> path:string list -> (unit -> unit Lwt.t)
+              -> (unit -> unit Lwt.t) Lwt.t
+  (** [watch b p cb] watches the queue at path [p] in branch [b], and invokes
+      the callback function if there are any updates.
+      @return a function to disable the watch. *)
+end
+
+module FS_queue (V : Tc.S0) : Queue with type elt = V.t
+(** A Queue that uses the git filesystem backend. *)
+
+module Memory_queue (V : Tc.S0) : Queue with type elt = V.t
+(** A Queue that uses the git in-memory backend. *)
+
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2016 KC Sivaramakrishnan
