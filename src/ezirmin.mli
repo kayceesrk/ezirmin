@@ -63,7 +63,9 @@ end
 module type Blob_log = sig
   (** {1 An append-only log} *)
 
-  (** [Blob_log] provides mergeable append-only logs. *)
+  (** [Blob_log] provides mergeable append-only logs. Appending to log is a
+      [O(n)] operation, where [n] is the size of the size of the log. For an
+      efficient implementation see, {!Log}. *)
 
   include Repo
 
