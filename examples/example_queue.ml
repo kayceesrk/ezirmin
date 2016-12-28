@@ -6,7 +6,7 @@
 
 open Lwt.Infix
 
-module M = Ezirmin.FS_queue(Tc.Int)
+module M = Ezirmin.Memory_queue(Tc.Int)
 open M
 
 let rec iter f c =
