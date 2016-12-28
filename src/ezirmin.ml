@@ -17,22 +17,6 @@ module type Repo = sig
   val install_listener : unit -> unit
 end
 
-module type Log = Ezirmin_log.S
-
-module FS_log(V:Tc.S0) =
-  Ezirmin_log.Make(Irmin_unix.Irmin_git.FS)(V)
-module Memory_log(V:Tc.S0) =
-  Ezirmin_log.Make(Irmin_unix.Irmin_git.Memory)(V)
-
-module type Lww_register = Ezirmin_lww_register.S
-
-module FS_lww_register (V : Tc.S0) =
-  Ezirmin_lww_register.Make(Irmin_unix.Irmin_git.FS)(V)
-module Memory_lww_register (V : Tc.S0) =
-  Ezirmin_lww_register.Make(Irmin_unix.Irmin_git.Memory)(V)
-
-module type Queue = Ezirmin_queue.S
-
 module Make_git_AO_maker (G : Git.Store.S) (K : Irmin.Hash.S) (V : Tc.S0) = struct
   module M = Irmin_unix.Irmin_git.AO(G)(K)(V)
   include M
@@ -46,10 +30,33 @@ module Make_git_AO_maker (G : Git.Store.S) (K : Irmin.Hash.S) (V : Tc.S0) = stru
     G.create ?root ?level ()
 end
 
+module type Blob_log = Ezirmin_blob_log.S
+
+module FS_blob_log(V:Tc.S0) =
+  Ezirmin_blob_log.Make(Irmin_unix.Irmin_git.FS)(V)
+module Memory_blob_log(V:Tc.S0) =
+  Ezirmin_blob_log.Make(Irmin_unix.Irmin_git.Memory)(V)
+
+module type Log = Ezirmin_log.S
+
+module FS_log(V:Tc.S0) =
+  Ezirmin_log.Make(Make_git_AO_maker(Git_unix.FS))(Irmin_unix.Irmin_git.FS)(V)
+module Memory_log(V:Tc.S0) =
+  Ezirmin_log.Make(Make_git_AO_maker(Git_unix.Memory))(Irmin_unix.Irmin_git.Memory)(V)
+
+module type Lww_register = Ezirmin_lww_register.S
+
+module FS_lww_register (V : Tc.S0) =
+  Ezirmin_lww_register.Make(Irmin_unix.Irmin_git.FS)(V)
+module Memory_lww_register (V : Tc.S0) =
+  Ezirmin_lww_register.Make(Irmin_unix.Irmin_git.Memory)(V)
+
+module type Queue = Ezirmin_queue.S
+
 module Memory_queue (V : Tc.S0) =
   Ezirmin_queue.Make(Make_git_AO_maker(Git_unix.Memory))(Irmin_unix.Irmin_git.Memory)(V)
 module FS_queue (V : Tc.S0) =
-  Ezirmin_queue.Make(Make_git_AO_maker(Git_unix.FS))(Irmin_unix.Irmin_git.Memory)(V)
+  Ezirmin_queue.Make(Make_git_AO_maker(Git_unix.FS))(Irmin_unix.Irmin_git.FS)(V)
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2016 KC Sivaramakrishnan

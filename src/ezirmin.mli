@@ -60,9 +60,35 @@ end
 
 (** {2 Mergeable datastructures} *)
 
+module type Blob_log = sig
+  (** {1 An append-only log} *)
+
+  (** [Blob_log] provides mergeable append-only logs. *)
+
+  include Repo
+
+  type elt
+  (** The type of value stored in the log. *)
+
+  val append : branch -> path:string list -> elt -> unit Lwt.t
+  (** [append b p e] appends a log message [e] to the log at path [p] in branch
+      [b]. *)
+
+  val read_all : branch -> path:string list -> elt list Lwt.t
+  (** [read_all b p] returns the list of messages in the log at path [b] in
+      branch [b]. *)
+
+  val watch : branch -> path:string list -> (elt -> unit Lwt.t) -> (unit -> unit Lwt.t) Lwt.t
+  (** [watch b p cb] watches the log at the path [p] in the branch [b]. On each
+      append of a message [m] to the log, the callback function [cb m] is
+      invoked. Before installing watches, a listener thread must be started
+      with {!Repo.install_listener} that watches the store for changes.
+      @return a function to disable the watch. *)
+end
+
 module type Log = sig
 
-  (** {1 Append-only logs} *)
+  (** {1 An efficient write-optimized append-only logs} *)
 
   (** [Log] provides mergeable append-only logs with support for paginated
       reads. Appending messages to logs and merging two logs are constant time
@@ -107,7 +133,7 @@ module type Log = sig
   (** [watch b p cb] watches the log at the path [p] in the branch [b]. On each
       append of a message [m] to the log, the callback function [cb m] is
       invoked. Before installing watches, a listener thread must be started
-      with {!install_listener} that watches the store for changes.
+      with {!Repo.install_listener} that watches the store for changes.
       @return a function to disable the watch. *)
 end
 
@@ -207,8 +233,12 @@ end
 
 (** Mergeable datatypes instantiated with git filesystem backend. *)
 
+module FS_blob_log (V : Tc.S0) : Blob_log with type elt = V.t
+(** A log abstraction that uses git filesystem backend. *)
+
 module FS_log (V : Tc.S0) : Log with type elt = V.t
-(** A log abstraction that uses the git filesystem backend. *)
+(** An efficient write-optimized log abstraction that uses the git filesystem
+    backend. *)
 
 module FS_lww_register (V : Tc.S0) : Lww_register with type value = V.t
 (** An Lww_reigster that uses the git filesystem backend. *)
@@ -220,8 +250,12 @@ module FS_queue (V : Tc.S0) : Queue with type elt = V.t
 
 (** Mergeable datatypes instantiated with git in-memory backend. *)
 
+module Memory_blob_log (V : Tc.S0) : Blob_log with type elt = V.t
+(** A log abstraction that uses git in-memory backend. *)
+
 module Memory_log (V : Tc.S0) : Log with type elt = V.t
-(** A log abstraction that uses the git in-memory backend. *)
+(** An efficient write-optimized log abstraction that uses the git in-memory
+    backend. *)
 
 module Memory_lww_register (V : Tc.S0) : Lww_register with type value = V.t
 (** An Lww_register abstraction that uses the git in-memory backend. *)

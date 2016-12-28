@@ -9,4 +9,6 @@ let () =
     Pkg.mllib "src/ezirmin.mllib";
     Pkg.test "examples/example_log";
     Pkg.test "examples/example_queue";
+    Pkg.bin "bench/bench_blob_log";
+    Pkg.bin "bench/bench_log";
   ]

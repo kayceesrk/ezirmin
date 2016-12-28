@@ -7,4 +7,5 @@ PKG tc
 PKG ppx_jane
 S src
 S test
+S bench
 B _build/**

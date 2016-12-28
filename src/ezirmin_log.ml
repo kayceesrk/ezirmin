@@ -3,7 +3,7 @@
 open Irmin_unix
 open Lwt.Infix
 
-module Log(V: Tc.S0) = struct
+module Log(AO : Irmin.AO_MAKER)(V: Tc.S0) = struct
 
   module Path = Irmin.Path.String_list
 
@@ -28,15 +28,15 @@ module Log(V: Tc.S0) = struct
     include (Ptime : TIME with type t := t)
   end
 
-  module K = Tc.Option(Tc.List(Tc.String))
+  module K = Irmin.Hash.SHA1
 
   type log_item =
     { time    : Time.t;
       message : V.t;
-      prev    : K.t }
+      prev    : K.t option}
 
   module Value = Tc.Biject
-    (Tc.Pair (Tc.Pair(Time)(V))(K))
+    (Tc.Pair (Tc.Pair(Time)(V))(Tc.Option(K)))
     (struct
       type t = log_item
       let to_t ((time,message), prev) =
@@ -85,28 +85,44 @@ module Log(V: Tc.S0) = struct
       String.length str
   end
 
-  include C
+  module Store = struct
+    module S = AO(K)(C)
+    include S
+    let create () = create @@ Irmin_git.config ()
+  end
+
+  include K
+
+  let append ?prev message =
+    Store.create () >>= fun store ->
+    Store.add store @@ C.Value {time = Ptime_clock.now(); prev; message}
+
+  let read_key k =
+    Store.create () >>= fun store ->
+    Store.read_exn store k
 
   let sort l =
     List.sort (fun i1 i2 -> Time.compare i2.time i1.time) l
 
   let merge : Path.t -> t option Irmin.Merge.t =
     let open Irmin.Merge.OP in
-    let merge ~old v1 v2 =
+    let merge' ~old v1 v2 =
+      Store.create () >>= fun store ->
+      Store.read store v1 >>= fun v1 ->
+      Store.read store v2 >>= fun v2 ->
       let lv1 = match v1 with
-      | Value v -> [v]
-      | Merge l -> l
+      | None -> []
+      | Some (C.Value v) -> [v]
+      | Some (C.Merge lv) -> lv
       in
       let lv2 = match v2 with
-      | Value v -> [v]
-      | Merge l -> l
+      | None -> []
+      | Some (C.Value v) -> [v]
+      | Some (C.Merge lv) -> lv
       in
-      ok @@ Merge (sort @@ lv1 @ lv2)
-      in fun _path -> Irmin.Merge.option (module C) merge
-
-   let mk_value message prev =
-     C.Value {time = Ptime_clock.now(); prev; message}
-
+      Store.add store (C.Merge (sort @@ lv1 @ lv2)) >>= fun m ->
+      ok m
+      in fun _path -> Irmin.Merge.option (module K) merge'
 end
 
 module type S = sig
@@ -123,19 +139,19 @@ module type S = sig
               -> (unit -> unit Lwt.t) Lwt.t
 end
 
-module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
+module Make(AOM : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
 
-  module L = Log(V)
+  module L = Log(AOM)(V)
 
-  module Repo = Ezirmin_repo.Make(Backend)(L)
+  module Repo = Ezirmin_repo.Make(SM)(L)
   include Repo
 
-  module PathSet = Set.Make(Irmin.Path.String_list)
+  module HashSet = Set.Make(Irmin.Hash.SHA1)
 
   type elt = V.t
 
   type cursor =
-    { seen   : PathSet.t;
+    { seen   : HashSet.t;
       cache  : L.log_item list;
       branch : branch }
 
@@ -143,37 +159,19 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
 
   let append t ~path e =
     let head = path @ [head_name] in
-
-    (* TODO: Optimize *)
-    let get_filename e =
-      let res =
-        Tc.write_cstruct (module L) e |>
-        Irmin.Hash.SHA1.digest |>
-        Irmin.Hash.SHA1.to_hum
-      in
-      res
-    in
-
-    Store.read (t "read") head >>= function
-    | None ->
-        let v = L.mk_value e None in
-        Lwt_log.debug_f "append.None" >>= fun () ->
-        Store.update (t "Create head") head v
-    | Some prev ->
-        let prev_fn = get_filename prev in
-        let prev_path = path @ [prev_fn] in
-        let prev_path_short = path @ [String.sub prev_fn 0 7] in
-        Lwt_log.debug_f "append.Some" >>= fun () ->
-        Store.update (t @@ "Copy head to " ^ String.concat "/" prev_path_short) prev_path prev >>= fun () ->
-        Store.update (t @@ "Update head: prev=" ^ String.concat "/" prev_path_short) head @@ L.mk_value e (Some prev_path)
+    Store.read (t "read") head >>= fun prev ->
+    L.append ?prev e >>= fun v ->
+    Lwt_log.debug_f "append.None" >>= fun () ->
+    Store.update (t "Create head") head v
 
   let get_cursor branch ~path =
-    let open L in
-    let mk_cursor cache = Lwt.return @@ Some {seen = PathSet.singleton path; cache; branch} in
+    let mk_cursor k cache = Lwt.return @@ Some {seen = HashSet.singleton k; cache; branch} in
     Store.read (branch "read") (path @ [head_name]) >>= function
     | None -> Lwt.return None
-    | Some (Value v) -> mk_cursor [v]
-    | Some (Merge l) -> mk_cursor l
+    | Some k ->
+        L.read_key k >>= function
+        | L.C.Value v -> mk_cursor k [v]
+        | L.C.Merge l -> mk_cursor k l
 
   let rec read_log cursor ~num_items acc =
     let open L in
@@ -184,18 +182,18 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
       | {message; prev = None; _}::xs ->
           Lwt_log.debug_f "read_log.Value.None" >>= fun () ->
           read_log {cursor with cache = xs} (num_items - 1) (message::acc)
-      | {message; prev = Some path; _}::xs ->
-          if PathSet.mem path cursor.seen then
+      | {message; prev = Some pk; _}::xs ->
+          if HashSet.mem pk cursor.seen then
             Lwt_log.debug_f "read_log.Value.Some.seen" >>= fun () ->
             read_log {cursor with cache = xs} (num_items - 1) (message::acc)
           else
-            let seen = PathSet.add path cursor.seen in
-            Store.read_exn (cursor.branch "read") path >>= function
-            | Value v ->
+            let seen = HashSet.add pk cursor.seen in
+            L.read_key pk >>= function
+            | L.C.Value v ->
                 Lwt_log.debug_f "read_log.Value.Some.unseen.Value" >>= fun () ->
                 read_log {cursor with seen; cache = sort (v::xs)}
                   (num_items - 1) (message::acc)
-            | Merge l ->
+            | L.C.Merge l ->
                 Lwt_log.debug_f "read_log.Value.Some.unseen.Merge" >>= fun () ->
                 read_log {cursor with seen; cache = sort (l @ xs)}
                   (num_items - 1) (message::acc)
@@ -212,9 +210,12 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
         log
 
   let watch branch ~path callback =
-    let open L in
+    let handle k = L.read_key k >>= function
+    | L.C.Value {L.message} -> callback message
+    | _ -> Lwt.return ()
+    in
     Store.watch_key (branch "watch") (path @ [head_name]) (function
-    | `Added (_, Value {message; _}) -> callback message
-    | `Updated (_, (_,Value {message; _})) -> callback message
+    | `Added (_, k) -> handle k
+    | `Updated (_, (_,k)) -> handle k
     | _ -> Lwt.return ())
 end
