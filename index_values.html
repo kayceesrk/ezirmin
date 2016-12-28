@@ -21,6 +21,12 @@
       branch <code class="code">b</code>.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Blob_log.html#VALappend">append</a> [<a href="Ezirmin.Blob_log.html">Ezirmin.Blob_log</a>]</td>
+<td><div class="info">
+<code class="code">append b p e</code> appends a log message <code class="code">e</code> to the log at path <code class="code">p</code> in branch
+      <code class="code">b</code>.
+</div>
+</td></tr>
 <tr><td align="left"><br>C</td></tr>
 <tr><td><a href="Ezirmin.Repo.html#VALclone_force">clone_force</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
@@ -134,6 +140,12 @@ Pop an element from the front of the queue.
       <code class="code">b</code> in reverse chronological order.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Blob_log.html#VALread_all">read_all</a> [<a href="Ezirmin.Blob_log.html">Ezirmin.Blob_log</a>]</td>
+<td><div class="info">
+<code class="code">read_all b p</code> returns the list of messages in the log at path <code class="code">b</code> in
+      branch <code class="code">b</code>.
+</div>
+</td></tr>
 <tr><td align="left"><br>W</td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALwatch">watch</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
 <td><div class="info">
@@ -148,6 +160,11 @@ Pop an element from the front of the queue.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALwatch">watch</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<td><div class="info">
+<code class="code">watch b p cb</code> watches the log at the path <code class="code">p</code> in the branch <code class="code">b</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Blob_log.html#VALwatch">watch</a> [<a href="Ezirmin.Blob_log.html">Ezirmin.Blob_log</a>]</td>
 <td><div class="info">
 <code class="code">watch b p cb</code> watches the log at the path <code class="code">p</code> in the branch <code class="code">b</code>.
 </div>
