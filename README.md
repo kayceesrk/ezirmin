@@ -4,7 +4,7 @@ ezirmin — An easy interface on top of the Irmin library.
 
 Ezirmin is an easy interface on top of the
 [Irmin](https://github.com/mirage/irmin) library. It comes with set of mergeable
-datatypes, instantiated to specific backends to quickly get on with it. For
+datatypes, instantiated to specific backends to quickly get going. For
 example,
 
 ```ocaml
