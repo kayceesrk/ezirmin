@@ -26,6 +26,7 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;push&nbsp;:&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.elt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pop_exn&nbsp;:&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.elt&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pop&nbsp;:&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.elt&nbsp;option&nbsp;<span class="constructor">Lwt</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_list&nbsp;:&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.elt&nbsp;list&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;cursor
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_cursor&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.cursor&nbsp;option&nbsp;<span class="constructor">Lwt</span>.t
@@ -34,6 +35,8 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;next&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.cursor&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.elt&nbsp;*&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.cursor)&nbsp;option&nbsp;<span class="constructor">Lwt</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;iter&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;f:(<span class="constructor">Ezirmin</span>.<span class="constructor">Queue</span>.elt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;watch&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="constructor">Lwt</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="constructor">Lwt</span>.t)&nbsp;<span class="constructor">Lwt</span>.t

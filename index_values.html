@@ -76,6 +76,12 @@ Create a thread that actively polls for change.
 Returns <code class="code"><span class="keyword">true</span></code> if the queue is empty.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALiter">iter</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+<code class="code">iter b p f</code> applies f on each element of the queue from the front to the
+      back of the queue.
+</div>
+</td></tr>
 <tr><td align="left"><br>L</td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALlength">length</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
 <td><div class="info">
@@ -144,6 +150,12 @@ Pop an element from the front of the queue.
 <td><div class="info">
 <code class="code">read_all b p</code> returns the list of messages in the log at path <code class="code">b</code> in
       branch <code class="code">b</code>.
+</div>
+</td></tr>
+<tr><td align="left"><br>T</td></tr>
+<tr><td><a href="Ezirmin.Queue.html#VALto_list">to_list</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
+<td><div class="info">
+Return a list with the elements in the queue.
 </div>
 </td></tr>
 <tr><td align="left"><br>W</td></tr>

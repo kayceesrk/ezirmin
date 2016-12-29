@@ -12,6 +12,7 @@
 <link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><link title="Mergeable Queue" rel="Section" href="#1_MergeableQueue">
 <link title="Iteration" rel="Subsection" href="#2_Iteration">
+<link title="Watch" rel="Subsection" href="#2_Watch">
 <title>Ezirmin.Memory_queue</title>
 </head>
 <body>
@@ -81,6 +82,10 @@ Pop an element from the front of the queue. If the queue is empty or does
 Pop an element from the front of the queue. If the queue is empty of does
       not exist at this path, then <code class="code"><span class="constructor">None</span></code> is returned.<br>
 </div>
+
+<pre><span id="VALto_list"><span class="keyword">val</span> to_list</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Queue.html#TYPEelt">elt</a> list Lwt.t</code></pre><div class="info ">
+Return a list with the elements in the queue.<br>
+</div>
 <br>
 <h2 id="2_Iteration">Iteration</h2><br>
 
@@ -106,6 +111,13 @@ Get the next element in the queue. Return a pair of the head element and a
       cursor that points to the tail of the queue. Return <code class="code"><span class="constructor">None</span></code> if the cursor
       points to an empty queue.<br>
 </div>
+
+<pre><span id="VALiter"><span class="keyword">val</span> iter</span> : <code class="type">branch -> path:string list -> f:(<a href="Ezirmin.Queue.html#TYPEelt">elt</a> -> unit) -> unit Lwt.t</code></pre><div class="info ">
+<code class="code">iter b p f</code> applies f on each element of the queue from the front to the
+      back of the queue.<br>
+</div>
+<br>
+<h2 id="2_Watch">Watch</h2><br>
 
 <pre><span id="VALwatch"><span class="keyword">val</span> watch</span> : <code class="type">branch -><br>       path:string list -> (unit -> unit Lwt.t) -> (unit -> unit Lwt.t) Lwt.t</code></pre><div class="info ">
 <code class="code">watch b p cb</code> watches the queue at path <code class="code">p</code> in branch <code class="code">b</code>, and invokes
