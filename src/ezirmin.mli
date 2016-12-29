@@ -204,6 +204,9 @@ module type Queue = sig
   (** Pop an element from the front of the queue. If the queue is empty of does
       not exist at this path, then [None] is returned. *)
 
+  val to_list : branch -> path:string list -> elt list Lwt.t
+  (** Return a list with the elements in the queue. *)
+
   (** {2 Iteration} *)
 
   type cursor
@@ -222,6 +225,12 @@ module type Queue = sig
   (** Get the next element in the queue. Return a pair of the head element and a
       cursor that points to the tail of the queue. Return [None] if the cursor
       points to an empty queue. *)
+
+  val iter : branch -> path:string list -> f:(elt -> unit) -> unit Lwt.t
+  (** [iter b p f] applies f on each element of the queue from the front to the
+      back of the queue. *)
+
+  (** {2 Watch} *)
 
   val watch : branch -> path:string list -> (unit -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t

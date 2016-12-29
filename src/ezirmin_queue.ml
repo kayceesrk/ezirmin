@@ -545,10 +545,12 @@ module type S = sig
   val push : branch -> path:string list -> elt -> unit Lwt.t
   val pop_exn : branch -> path:string list -> elt Lwt.t
   val pop : branch -> path:string list -> elt option Lwt.t
+  val to_list : branch -> path:string list -> elt list Lwt.t
 
   val get_cursor : branch -> path:string list -> cursor option Lwt.t
   val next_exn : cursor -> (elt * cursor) Lwt.t
   val next : cursor -> (elt * cursor) option Lwt.t
+  val iter : branch -> path:string list -> f:(elt -> unit) -> unit Lwt.t
 
   val watch : branch -> path:string list -> (unit -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t
@@ -619,6 +621,22 @@ module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt
   let next c = Q.pop c
 
   let next_exn c = Q.pop_exn c
+
+  let iter t ~path ~f =
+    get_cursor t path >>= function
+    | None -> return ()
+    | Some c ->
+        let rec loop c =
+          next c >>= function
+          | None -> return ()
+          | Some (v, c) -> (f v; loop c)
+        in
+        loop c
+
+  let to_list t ~path =
+    let lr = ref [] in
+    iter t path (fun e -> lr := e::!lr) >>= fun () ->
+    return (List.rev !lr)
 
   let watch branch ~path callback =
     Store.watch_key (branch "watch") (path @ [head_name]) (fun _ -> callback ())
