@@ -32,7 +32,7 @@ utop # open M;;
 utop # open Lwt.Infix;;
 utop # let m = Lwt_main.run (init ~root:"/tmp/ezirminq" ~bare:true () >>= master);;
 val m : branch = <abstr>
-utop # pop m ["work"; "todo"];;
+utop # pop m ["home"; "todo"];;
 - : string option = Some "buy milk"
 ```
 
