@@ -1,6 +1,5 @@
-ezirmin — An easy interface on top of the Irmin library.
+Ezirmin — An easy interface on top of the Irmin library.
 -------------------------------------------------------------------------------
-%%VERSION%%
 
 Ezirmin is an easy interface on top of the
 [Irmin](https://github.com/mirage/irmin) library. It comes with set of mergeable
