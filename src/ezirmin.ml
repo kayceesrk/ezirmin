@@ -4,18 +4,7 @@
    %%NAME%% %%VERSION%%
   ---------------------------------------------------------------------------*)
 
-module type Repo = sig
-  type repo
-  type branch
-
-  val init : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
-  val master : repo -> branch Lwt.t
-  val get_branch : repo -> branch_name:string -> branch Lwt.t
-  val get_branch_name : branch -> string option Lwt.t
-  val clone_force : branch -> string -> branch Lwt.t
-  val merge : branch -> into:branch -> unit Lwt.t
-  val install_listener : unit -> unit
-end
+module type Repo = Ezirmin_repo.S
 
 module Make_git_AO_maker (G : Git.Store.S) (K : Irmin.Hash.S) (V : Tc.S0) = struct
   module M = Irmin_unix.Irmin_git.AO(G)(K)(V)

@@ -52,6 +52,37 @@ module type Repo = sig
   (** [merge w m] merges branch [w] into [m]. Merge will always succeed. After
       the merge the branch [w] continues to exist. *)
 
+  (** {2 History} *)
+
+  val predecessors : repo -> branch -> branch list Lwt.t
+  (** Return the list of predecessors of the head of the branch. *)
+
+  val update_branch : branch -> set:branch -> unit Lwt.t
+  (** [update_branch b s] updates the head of the branch [b] to the head of the
+      branch [s]. *)
+
+  module Commit : sig
+    type t
+    (** The type of commit. *)
+
+    val commit_of_branch : branch -> t option Lwt.t
+    (** Get the commit corresponding to the head of the branch. If the branch is
+        empty, then return [None]. *)
+
+    val branch_of_commit : repo -> t -> branch Lwt.t
+    (** Get the branch that corresponds to a commit. *)
+
+    val predecessors : t -> t list
+    (** Get the predecessors or the commit. *)
+
+    val compare_and_update_branch : branch -> expect:t option -> update:t option -> bool Lwt.t
+    (** [compare_and_update_branch b e u] compares the head of the branch [b]
+        to the commit [e]. If they are the same, then the head of branch [b] is
+        updated to [u]. Returns [true] if the update is successful. *)
+  end
+
+  (** {2 Watch} *)
+
   val install_listener : unit -> unit
   (** Create a thread that actively polls for change. Prefer
       {{:https://opam.ocaml.org/packages/inotify/inotify.2.0/}inotify} if it

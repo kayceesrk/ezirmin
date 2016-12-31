@@ -10,6 +10,17 @@ module type S = sig
   val get_branch_name : branch -> string option Lwt.t
   val clone_force : branch -> string -> branch Lwt.t
   val merge : branch -> into:branch -> unit Lwt.t
+
+  val predecessors  : repo -> branch -> branch list Lwt.t
+  val update_branch : branch -> set:branch -> unit Lwt.t
+  module Commit : sig
+    type t
+    val commit_of_branch : branch -> t option Lwt.t
+    val branch_of_commit : repo -> t -> branch Lwt.t
+    val predecessors : t -> t list
+    val compare_and_update_branch : branch -> expect:t option -> update:t option -> bool Lwt.t
+  end
+
   val install_listener : unit -> unit
 end
 

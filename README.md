@@ -57,6 +57,8 @@ utop # to_list m ["home"; "todo"];;
 - : string list = ["walk dog"; "take out trash"]
 ```
 
+### What's in the box
+
 The mergeable datatypes currently available are:
 
 * [Blog_log](http://kcsrk.info/ezirmin/Ezirmin.Blob_log.html): An append-only
