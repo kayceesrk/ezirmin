@@ -20,8 +20,8 @@ utop # push m ["work"; "todo"] "publish ezirmin";;
 - : unit = ()
 ```
 
-This persistent mergeable queue is saved in the git repository at
-`/tmp/ezirminq`. In another terminal,
+This mergeable queue is saved in the git repository at `/tmp/ezirminq`. In
+another terminal,
 
 ```ocaml
 $ utop
@@ -54,6 +54,47 @@ utop # merge wip_t1 ~into:m;;
 - : unit = ()
 utop # to_list m ["home"; "todo"];;
 - : string list = ["walk dog"; "take out trash"]
+```
+### Working with history
+
+In addition to the data structures being mergeable, they are also persistent. In
+particular, every object stored in Irmin has complete provenance. Ezimrin
+simplifies working with object history.
+
+```ocaml
+let run = Lwt_main.run
+let repo = run @@ init ()
+let path = ["Books"; "Ovine Supply Logistics"]
+let push_msg = push m ~path;;
+
+run begin
+  push_msg "Baa" >>= fun () ->
+  push_msg "Baa" >>= fun () ->
+  push_msg "Black" >>= fun () ->
+  push_msg "Camel"
+end;;
+
+run @@ to_list m path;;
+- : string list = ["Baa"; "Baa"; "Black"; "Camel"]
+```
+
+Clearly this is wrong. Let's fix this by reverting to earlier version:
+
+```ocaml
+let m_1::_ = run @@ predecessors repo m;; (** HEAD~1 version *)
+run @@ to_list m_1 path;;
+- : string list = ["Baa"; "Baa"; "Black"]
+run @@ update_branch m ~set:m_1;;
+run @@ to_list m path;;
+- : string list = ["Baa"; "Baa"; "Black"]
+```
+
+Now that we've undone the error, we can do the right thing.
+
+```ocaml
+run @@ push_msg "Sheep";;
+run @@ to_list m path;;
+- : string list = ["Baa"; "Baa"; "Black"; "Sheep"]
 ```
 
 ### What's in the box
