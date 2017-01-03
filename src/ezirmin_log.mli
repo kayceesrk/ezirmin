@@ -7,6 +7,9 @@ module type S = sig
   val get_cursor : branch -> path:string list -> cursor option Lwt.t
   val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
   val read_all   : branch -> path:string list -> elt list Lwt.t
+  val at_time    : cursor -> Ptime.t option
+  val is_earlier : cursor -> than:cursor -> bool option
+  val is_later   : cursor -> than:cursor -> bool option
 
   val watch : branch -> path:string list -> (elt -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t

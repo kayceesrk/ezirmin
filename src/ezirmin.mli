@@ -87,6 +87,17 @@ module type Repo = sig
   (** Create a thread that actively polls for change. Prefer
       {{:https://opam.ocaml.org/packages/inotify/inotify.2.0/}inotify} if it
       works on your system. *)
+
+  (** {2 Sync} *)
+
+  (** [Sync] provides functionality to sync with remote repositories. *)
+
+  module Sync : sig
+    type remote
+    val remote_uri : string -> remote
+    val pull : remote -> branch -> [`Merge | `Update] -> [`Conflict of string | `Ok | `Error | `No_head ] Lwt.t
+    val push : remote -> branch -> [`Ok | `Error] Lwt.t
+  end
 end
 
 (** {2 Mergeable datastructures} *)
@@ -159,6 +170,10 @@ module type Log = sig
   val read_all : branch -> path:string list -> elt list Lwt.t
   (** [read_all b p] reads all the messages in the log at path [p] in the branch
       [b] in reverse chronological order. *)
+
+  val at_time : cursor -> Ptime.t option
+  val is_earlier : cursor -> than:cursor -> bool option
+  val is_later : cursor -> than:cursor -> bool option
 
   (** {2 Watch} *)
 

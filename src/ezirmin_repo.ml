@@ -23,14 +23,23 @@ module type S = sig
   end
 
   val install_listener : unit -> unit
+
+  module Sync : sig
+    type remote
+    val remote_uri : string -> remote
+    val pull : remote -> branch -> [`Merge | `Update] -> [`Conflict of string | `Ok | `Error | `No_head ] Lwt.t
+    val push : remote -> branch -> [`Ok | `Error] Lwt.t
+  end
+
 end
 
 module Make(Backend : Irmin.S_MAKER)(C : Irmin.Contents.S) : sig
-  module Store : (module type of (Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)))
+  module Store : (module type of Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1))
   include S with type branch = string -> Store.t
 end = struct
 
   module Store = Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)
+  module Sync_ = Irmin.Sync(Store)
 
   type repo = Store.Repo.t
   type branch = string -> Store.t
@@ -84,4 +93,21 @@ end = struct
     | Some c -> Store.update_head (b "rebase") c.Commit.id
 
   let install_listener = set_listen_dir_hook
+
+  module Sync = struct
+
+    type remote = Irmin.remote
+
+    let remote_uri = Irmin.remote_uri
+
+    let pull uri b k =
+      Sync_.pull (b "pull") uri k >|= function
+      | `Conflict s -> `Conflict s
+      | `Ok (`Error) -> `Error
+      | `Ok (`No_head) -> `No_head
+      | `Ok (`Ok) -> `Ok
+
+    let push uri b =
+      Sync_.push (b "push") uri
+  end
 end

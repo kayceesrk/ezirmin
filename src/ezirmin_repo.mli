@@ -22,9 +22,17 @@ module type S = sig
   end
 
   val install_listener : unit -> unit
+
+  module Sync : sig
+    type remote
+    val remote_uri : string -> remote
+    val pull : remote -> branch -> [`Merge | `Update]
+            -> [`Conflict of string | `Ok | `Error | `No_head ] Lwt.t
+    val push : remote -> branch -> [`Ok | `Error] Lwt.t
+  end
 end
 
 module Make(Backend : Irmin.S_MAKER)(C : Irmin.Contents.S) : sig
-  module Store : (module type of (Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)))
+  module Store : (module type of Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1))
   include S with type branch = string -> Store.t
 end
