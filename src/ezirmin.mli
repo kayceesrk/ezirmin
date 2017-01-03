@@ -94,9 +94,16 @@ module type Repo = sig
 
   module Sync : sig
     type remote
+    (** The type of remote. *)
+
     val remote_uri : string -> remote
+    (** Return a remote for the URI string. *)
+
     val pull : remote -> branch -> [`Merge | `Update] -> [`Conflict of string | `Ok | `Error | `No_head ] Lwt.t
+    (** Pull updates from remote. *)
+
     val push : remote -> branch -> [`Ok | `Error] Lwt.t
+    (** Push updates to remote. *)
   end
 end
 
@@ -172,8 +179,15 @@ module type Log = sig
       [b] in reverse chronological order. *)
 
   val at_time : cursor -> Ptime.t option
+  (** [at_time c] returns the timestamp of the latest message in the cursor [c]. *)
+
   val is_earlier : cursor -> than:cursor -> bool option
+  (** [is_earlier x y] returns [true] if the latest message in [x] is older
+      than the latest message in [y]. *)
+
   val is_later : cursor -> than:cursor -> bool option
+  (** [is_later x y] returns [true] if the latest message in [x] is newer
+      than the latest message in [y]. *)
 
   (** {2 Watch} *)
 
