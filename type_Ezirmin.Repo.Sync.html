@@ -1,0 +1,22 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><title>Ezirmin.Repo.Sync</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;remote
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;remote_uri&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Repo</span>.<span class="constructor">Sync</span>.remote
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pull&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Repo</span>.<span class="constructor">Sync</span>.remote&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Repo</span>.branch&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Merge</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Update</span>&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Conflict</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">No_head</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;]&nbsp;<span class="constructor">Lwt</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;push&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Repo</span>.<span class="constructor">Sync</span>.remote&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Repo</span>.branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;]&nbsp;<span class="constructor">Lwt</span>.t
+<span class="keyword">end</span></code></body></html>

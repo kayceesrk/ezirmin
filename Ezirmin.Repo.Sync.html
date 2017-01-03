@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Ezirmin.Repo.Commit.html">
+<link rel="Up" href="Ezirmin.Repo.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><title>Ezirmin.Repo.Sync</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Ezirmin.Repo.Commit.html" title="Ezirmin.Repo.Commit">Previous</a>
+&nbsp;<a class="up" href="Ezirmin.Repo.html" title="Ezirmin.Repo">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Ezirmin.Repo.Sync.html">Ezirmin.Repo.Sync</a></h1>
+
+<pre><span class="keyword">module</span> Sync: <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Repo.Sync.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="TYPEremote"><span class="keyword">type</span> <code class="type"></code>remote</span> </pre>
+<div class="info ">
+The type of remote.<br>
+</div>
+
+
+<pre><span id="VALremote_uri"><span class="keyword">val</span> remote_uri</span> : <code class="type">string -> <a href="Ezirmin.Repo.Sync.html#TYPEremote">remote</a></code></pre><div class="info ">
+Return a remote for the URI string.<br>
+</div>
+
+<pre><span id="VALpull"><span class="keyword">val</span> pull</span> : <code class="type"><a href="Ezirmin.Repo.Sync.html#TYPEremote">remote</a> -><br>       <a href="Ezirmin.Repo.html#TYPEbranch">Ezirmin.Repo.branch</a> -><br>       [ `Merge | `Update ] -><br>       [ `Conflict of string | `Error | `No_head | `Ok ] Lwt.t</code></pre><div class="info ">
+Pull updates from remote.<br>
+</div>
+
+<pre><span id="VALpush"><span class="keyword">val</span> push</span> : <code class="type"><a href="Ezirmin.Repo.Sync.html#TYPEremote">remote</a> -> <a href="Ezirmin.Repo.html#TYPEbranch">Ezirmin.Repo.branch</a> -> [ `Error | `Ok ] Lwt.t</code></pre><div class="info ">
+Push updates to remote.<br>
+</div>
+</body></html>

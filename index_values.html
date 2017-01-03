@@ -27,10 +27,32 @@
       <code class="code">b</code>.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Log.html#VALat_time">at_time</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<td><div class="info">
+<code class="code">at_time c</code> returns the timestamp of the latest message in the cursor <code class="code">c</code>.
+</div>
+</td></tr>
+<tr><td align="left"><br>B</td></tr>
+<tr><td><a href="Ezirmin.Repo.Commit.html#VALbranch_of_commit">branch_of_commit</a> [<a href="Ezirmin.Repo.Commit.html">Ezirmin.Repo.Commit</a>]</td>
+<td><div class="info">
+Get the branch that corresponds to a commit.
+</div>
+</td></tr>
 <tr><td align="left"><br>C</td></tr>
 <tr><td><a href="Ezirmin.Repo.html#VALclone_force">clone_force</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 <code class="code">clone_force b n</code> clones the branch <code class="code">b</code> naming the new branch <code class="code">n</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Repo.Commit.html#VALcommit_of_branch">commit_of_branch</a> [<a href="Ezirmin.Repo.Commit.html">Ezirmin.Repo.Commit</a>]</td>
+<td><div class="info">
+Get the commit corresponding to the head of the branch.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Repo.Commit.html#VALcompare_and_update_branch">compare_and_update_branch</a> [<a href="Ezirmin.Repo.Commit.html">Ezirmin.Repo.Commit</a>]</td>
+<td><div class="info">
+<code class="code">compare_and_update_branch b e u</code> compares the head of the branch <code class="code">b</code>
+        to the commit <code class="code">e</code>.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALcreate">create</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
@@ -71,9 +93,21 @@ Initialize and connect to the repository in a backend specific manner.
 Create a thread that actively polls for change.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Log.html#VALis_earlier">is_earlier</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<td><div class="info">
+<code class="code">is_earlier x y</code> returns <code class="code"><span class="keyword">true</span></code> if the latest message in <code class="code">x</code> is older
+      than the latest message in <code class="code">y</code>.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALis_empty">is_empty</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
 <td><div class="info">
 Returns <code class="code"><span class="keyword">true</span></code> if the queue is empty.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Log.html#VALis_later">is_later</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
+<td><div class="info">
+<code class="code">is_later x y</code> returns <code class="code"><span class="keyword">true</span></code> if the latest message in <code class="code">x</code> is newer
+      than the latest message in <code class="code">y</code>.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALiter">iter</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
@@ -121,6 +155,26 @@ Pop an element from the front of the queue.
 Pop an element from the front of the queue.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Repo.Commit.html#VALpredecessors">predecessors</a> [<a href="Ezirmin.Repo.Commit.html">Ezirmin.Repo.Commit</a>]</td>
+<td><div class="info">
+Get the predecessors or the commit.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Repo.html#VALpredecessors">predecessors</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
+<td><div class="info">
+Return the list of predecessors of the head of the branch.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Repo.Sync.html#VALpull">pull</a> [<a href="Ezirmin.Repo.Sync.html">Ezirmin.Repo.Sync</a>]</td>
+<td><div class="info">
+Pull updates from remote.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Repo.Sync.html#VALpush">push</a> [<a href="Ezirmin.Repo.Sync.html">Ezirmin.Repo.Sync</a>]</td>
+<td><div class="info">
+Push updates to remote.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALpush">push</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
 <td><div class="info">
 <code class="code">push b p e</code> pushes element <code class="code">e</code> to the back of the queue at path <code class="code">p</code> in
@@ -152,10 +206,22 @@ Pop an element from the front of the queue.
       branch <code class="code">b</code>.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Repo.Sync.html#VALremote_uri">remote_uri</a> [<a href="Ezirmin.Repo.Sync.html">Ezirmin.Repo.Sync</a>]</td>
+<td><div class="info">
+Return a remote for the URI string.
+</div>
+</td></tr>
 <tr><td align="left"><br>T</td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALto_list">to_list</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
 <td><div class="info">
 Return a list with the elements in the queue.
+</div>
+</td></tr>
+<tr><td align="left"><br>U</td></tr>
+<tr><td><a href="Ezirmin.Repo.html#VALupdate_branch">update_branch</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
+<td><div class="info">
+<code class="code">update_branch b s</code> updates the head of the branch <code class="code">b</code> to the head of the
+      branch <code class="code">s</code>.
 </div>
 </td></tr>
 <tr><td align="left"><br>W</td></tr>

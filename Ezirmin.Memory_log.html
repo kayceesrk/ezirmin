@@ -91,6 +91,20 @@ The type of cursor. The cursor is an abstraction that represents a specifc
 <code class="code">read_all b p</code> reads all the messages in the log at path <code class="code">p</code> in the branch
       <code class="code">b</code> in reverse chronological order.<br>
 </div>
+
+<pre><span id="VALat_time"><span class="keyword">val</span> at_time</span> : <code class="type"><a href="Ezirmin.Log.html#TYPEcursor">cursor</a> -> Ptime.t option</code></pre><div class="info ">
+<code class="code">at_time c</code> returns the timestamp of the latest message in the cursor <code class="code">c</code>.<br>
+</div>
+
+<pre><span id="VALis_earlier"><span class="keyword">val</span> is_earlier</span> : <code class="type"><a href="Ezirmin.Log.html#TYPEcursor">cursor</a> -> than:<a href="Ezirmin.Log.html#TYPEcursor">cursor</a> -> bool option</code></pre><div class="info ">
+<code class="code">is_earlier x y</code> returns <code class="code"><span class="keyword">true</span></code> if the latest message in <code class="code">x</code> is older
+      than the latest message in <code class="code">y</code>.<br>
+</div>
+
+<pre><span id="VALis_later"><span class="keyword">val</span> is_later</span> : <code class="type"><a href="Ezirmin.Log.html#TYPEcursor">cursor</a> -> than:<a href="Ezirmin.Log.html#TYPEcursor">cursor</a> -> bool option</code></pre><div class="info ">
+<code class="code">is_later x y</code> returns <code class="code"><span class="keyword">true</span></code> if the latest message in <code class="code">x</code> is newer
+      than the latest message in <code class="code">y</code>.<br>
+</div>
 <br>
 <h2 id="2_Watch">Watch</h2><br>
 

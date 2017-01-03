@@ -11,6 +11,9 @@
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><link title="Repo operations" rel="Section" href="#1_Repooperations">
+<link title="History" rel="Subsection" href="#2_History">
+<link title="Watch" rel="Subsection" href="#2_Watch">
+<link title="Sync" rel="Subsection" href="#2_Sync">
 <title>Ezirmin.Repo</title>
 </head>
 <body>
@@ -74,10 +77,29 @@ Return the branch name. Return <code class="code"><span class="constructor">None
 <code class="code">merge w m</code> merges branch <code class="code">w</code> into <code class="code">m</code>. Merge will always succeed. After
       the merge the branch <code class="code">w</code> continues to exist.<br>
 </div>
+<br>
+<h2 id="2_History">History</h2><br>
+
+<pre><span id="VALpredecessors"><span class="keyword">val</span> predecessors</span> : <code class="type"><a href="Ezirmin.Repo.html#TYPErepo">repo</a> -> <a href="Ezirmin.Repo.html#TYPEbranch">branch</a> -> <a href="Ezirmin.Repo.html#TYPEbranch">branch</a> list Lwt.t</code></pre><div class="info ">
+Return the list of predecessors of the head of the branch.<br>
+</div>
+
+<pre><span id="VALupdate_branch"><span class="keyword">val</span> update_branch</span> : <code class="type"><a href="Ezirmin.Repo.html#TYPEbranch">branch</a> -> set:<a href="Ezirmin.Repo.html#TYPEbranch">branch</a> -> unit Lwt.t</code></pre><div class="info ">
+<code class="code">update_branch b s</code> updates the head of the branch <code class="code">b</code> to the head of the
+      branch <code class="code">s</code>.<br>
+</div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.Repo.Commit.html">Commit</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Repo.Commit.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><br>
+<h2 id="2_Watch">Watch</h2><br>
 
 <pre><span id="VALinstall_listener"><span class="keyword">val</span> install_listener</span> : <code class="type">unit -> unit</code></pre><div class="info ">
 Create a thread that actively polls for change. Prefer
       <a href="https://opam.ocaml.org/packages/inotify/inotify.2.0/">inotify</a> if it
       works on your system.<br>
 </div>
-</body></html>
+<br>
+<h2 id="2_Sync">Sync</h2><br>
+<br>
+<code class="code"><span class="constructor">Sync</span></code> provides functionality to sync with remote repositories.<br>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.Repo.Sync.html">Sync</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Repo.Sync.html">..</a> <code class="code"><span class="keyword">end</span></code></pre></body></html>
