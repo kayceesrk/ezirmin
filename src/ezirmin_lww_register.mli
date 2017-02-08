@@ -3,7 +3,7 @@ module type S = sig
 
   type value
   val read  : branch -> path:string list -> value option Lwt.t
-  val write : branch -> path:string list -> value -> unit Lwt.t
+  val write : ?message:string -> branch -> path:string list -> value -> unit Lwt.t
   val watch : branch -> path:string list
               -> ([ `Added of value | `Removed of value | `Updated of value * value ] -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t

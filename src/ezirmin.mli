@@ -105,6 +105,9 @@ module type Repo = sig
     val push : remote -> branch -> [`Ok | `Error] Lwt.t
     (** Push updates to remote. *)
   end
+
+  module Store : Irmin.S
+  (** Underlying Irmin store. *)
 end
 
 (** {2 Mergeable datastructures} *)
@@ -121,9 +124,9 @@ module type Blob_log = sig
   type elt
   (** The type of value stored in the log. *)
 
-  val append : branch -> path:string list -> elt -> unit Lwt.t
-  (** [append b p e] appends a log message [e] to the log at path [p] in branch
-      [b]. *)
+  val append : ?message:string -> branch -> path:string list -> elt -> unit Lwt.t
+  (** [append m b p e] appends a log message [e] to the log at path [p] in branch
+      [b] with commit message [m]. *)
 
   val read_all : branch -> path:string list -> elt list Lwt.t
   (** [read_all b p] returns the list of messages in the log at path [b] in
@@ -155,9 +158,9 @@ module type Log = sig
   (** The type of cursor. The cursor is an abstraction that represents a specifc
       position in the log. *)
 
-  val append : branch -> path:string list -> elt -> unit Lwt.t
-  (** [append b p m] appends the message [m] to the log at path [b] in the
-      branch [b]. Append is an O(1) operation. *)
+  val append : ?message:string -> branch -> path:string list -> elt -> unit Lwt.t
+  (** [append m b p c] appends the message [m] to the log at path [b] in the
+      branch [b] with commit message [c]. Append is an O(1) operation. *)
 
   val get_cursor : branch -> path:string list -> cursor option Lwt.t
   (** [get_cursor b p] fetches the cursor that points to the latest message in
@@ -216,9 +219,9 @@ module type Lww_register = sig
       [b]. If the register had not been previously written to, then the
       operation returns [None]. *)
 
-  val write : branch -> path:string list -> value -> unit Lwt.t
-  (** [write b p v] updates the value of the register at path [b] in branch [b]
-      to [v]. *)
+  val write : ?message:string -> branch -> path:string list -> value -> unit Lwt.t
+  (** [write b p m v] updates the value of the register at path [b] in branch [b]
+      to [v] with commit message [m]. *)
 
   val watch : branch -> path:string list
               -> ([ `Added of value | `Removed of value | `Updated of value * value ] -> unit Lwt.t)
@@ -239,7 +242,7 @@ module type Queue = sig
   type elt
   (** The type of element in the queue. *)
 
-  val create : branch -> path:string list -> unit Lwt.t
+  val create : ?message:string -> branch -> path:string list -> unit Lwt.t
   (** Create a new queue. If a queue already exists at this path, then this
       operation overwrites the old queue. *)
 
@@ -251,16 +254,17 @@ module type Queue = sig
   (** Returns [true] if the queue is empty. If the queue does not exist, then
       return [true]. *)
 
-  val push : branch -> path:string list -> elt -> unit Lwt.t
-  (** [push b p e] pushes element [e] to the back of the queue at path [p] in
-      branch [b]. If the queue does not exist at this path, then an empty queue
-      is created and [e] is pushed to the back of this queue. *)
+  val push : ?message:string -> branch -> path:string list -> elt -> unit Lwt.t
+  (** [push m b p e] pushes element [e] to the back of the queue at path [p] in
+      branch [b] with commit message [m]. If the queue does not exist at this
+      path, then an empty queue is created and [e] is pushed to the back of
+      this queue. *)
 
-  val pop_exn : branch -> path:string list -> elt Lwt.t
+  val pop_exn : ?message:string -> branch -> path:string list -> elt Lwt.t
   (** Pop an element from the front of the queue. If the queue is empty or does
       not exist at this path, then exception [Empty] is raised. *)
 
-  val pop : branch -> path:string list -> elt option Lwt.t
+  val pop : ?message:string -> branch -> path:string list -> elt option Lwt.t
   (** Pop an element from the front of the queue. If the queue is empty of does
       not exist at this path, then [None] is returned. *)
 

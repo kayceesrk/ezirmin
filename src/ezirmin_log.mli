@@ -3,7 +3,7 @@ module type S = sig
   type elt
   type cursor
 
-  val append     : branch -> path:string list -> elt -> unit Lwt.t
+  val append     : ?message:string -> branch -> path:string list -> elt -> unit Lwt.t
   val get_cursor : branch -> path:string list -> cursor option Lwt.t
   val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
   val read_all   : branch -> path:string list -> elt list Lwt.t

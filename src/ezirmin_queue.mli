@@ -2,12 +2,12 @@ module type S = sig
   include Ezirmin_repo.S
   type elt
   type cursor
-  val create : branch -> path:string list -> unit Lwt.t
+  val create : ?message:string -> branch -> path:string list -> unit Lwt.t
   val length : branch -> path:string list -> int Lwt.t
   val is_empty : branch -> path:string list -> bool Lwt.t
-  val push : branch -> path:string list -> elt -> unit Lwt.t
-  val pop_exn : branch -> path:string list -> elt Lwt.t
-  val pop : branch -> path:string list -> elt option Lwt.t
+  val push : ?message:string -> branch -> path:string list -> elt -> unit Lwt.t
+  val pop_exn : ?message:string -> branch -> path:string list -> elt Lwt.t
+  val pop : ?message:string -> branch -> path:string list -> elt option Lwt.t
   val to_list : branch -> path:string list -> elt list Lwt.t
 
   val get_cursor : branch -> path:string list -> cursor option Lwt.t

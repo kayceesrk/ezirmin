@@ -130,7 +130,7 @@ module type S = sig
   type elt
   type cursor
 
-  val append     : branch -> path:string list -> elt -> unit Lwt.t
+  val append     : ?message:string -> branch -> path:string list -> elt -> unit Lwt.t
   val get_cursor : branch -> path:string list -> cursor option Lwt.t
   val read       : cursor -> num_items:int -> (elt list * cursor option) Lwt.t
   val read_all   : branch -> path:string list -> elt list Lwt.t
@@ -160,12 +160,16 @@ module Make(AOM : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V:Tc.S0) : S with type elt
 
   let head_name = "head"
 
-  let append t ~path e =
+  let append ?message t ~path e =
+    let msg = match message with
+    | None -> "update"
+    | Some m -> m
+    in
     let head = path @ [head_name] in
     Store.read (t "read") head >>= fun prev ->
     L.append ?prev e >>= fun v ->
     Lwt_log.debug_f "append.None" >>= fun () ->
-    Store.update (t "Create head") head v
+    Store.update (t msg) head v
 
   let get_cursor branch ~path =
     let mk_cursor k cache = Lwt.return @@ Some {seen = HashSet.singleton k; cache; branch} in

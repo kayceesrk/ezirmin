@@ -71,7 +71,7 @@ end
 module type S = sig
   include Ezirmin_repo.S
   type elt
-  val append : branch -> path:string list -> elt -> unit Lwt.t
+  val append : ?message:string -> branch -> path:string list -> elt -> unit Lwt.t
   val read_all : branch -> path:string list -> elt list Lwt.t
   val watch  : branch -> path:string list -> (elt -> unit Lwt.t)
                -> (unit -> unit Lwt.t) Lwt.t
@@ -86,14 +86,18 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
   type elt = V.t
   let head_name = "head"
 
-  let append t ~path v =
+  let append ?message t ~path v =
+    let msg = match message with
+    | None -> "update"
+    | Some m -> m
+    in
     let head = path @ [head_name] in
     Store.read (t "read") head >>= function
     | None ->
         (try
-          Store.update (t "update") head [L.Entry.create v]
+          Store.update (t msg) head [L.Entry.create v]
         with e -> (print_string (Printexc.to_string e); raise e))
-    | Some l -> Store.update (t "update") head (L.Entry.create v :: l)
+    | Some l -> Store.update (t msg) head (L.Entry.create v :: l)
 
   let read_all t ~path =
     let head = path @ [head_name] in

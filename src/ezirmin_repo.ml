@@ -31,11 +31,12 @@ module type S = sig
     val push : remote -> branch -> [`Ok | `Error] Lwt.t
   end
 
+  module Store : Irmin.S
 end
 
 module Make(Backend : Irmin.S_MAKER)(C : Irmin.Contents.S) : sig
-  module Store : (module type of Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1))
-  include S with type branch = string -> Store.t
+  include S with type branch = string -> Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1).t
+             and module Store = Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)
 end = struct
 
   module Store = Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)

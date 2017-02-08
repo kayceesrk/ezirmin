@@ -539,12 +539,12 @@ module type S = sig
 
   type elt
   type cursor
-  val create : branch -> path:string list -> unit Lwt.t
+  val create : ?message:string -> branch -> path:string list -> unit Lwt.t
   val length : branch -> path:string list -> int Lwt.t
   val is_empty : branch -> path:string list -> bool Lwt.t
-  val push : branch -> path:string list -> elt -> unit Lwt.t
-  val pop_exn : branch -> path:string list -> elt Lwt.t
-  val pop : branch -> path:string list -> elt option Lwt.t
+  val push : ?message:string -> branch -> path:string list -> elt -> unit Lwt.t
+  val pop_exn : ?message:string -> branch -> path:string list -> elt Lwt.t
+  val pop : ?message:string -> branch -> path:string list -> elt option Lwt.t
   val to_list : branch -> path:string list -> elt list Lwt.t
 
   val get_cursor : branch -> path:string list -> cursor option Lwt.t
@@ -567,11 +567,15 @@ module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt
 
   let head_name = "head"
 
-  let create t ~path =
+  let opt_map default = function
+    | None -> default
+    | Some m -> m
+
+  let create ?message t ~path =
     let head = path @ [head_name] in
     Q.create () >>= fun q ->
     Lwt_log.debug_f "create.None" >>= fun () ->
-    Store.update (t "create") head q
+    Store.update (t (opt_map "create" message)) head q
 
   let length t ~path =
     let head = path @ [head_name] in
@@ -584,32 +588,32 @@ module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt
     | 0 -> return true
     | _ -> return false
 
-  let push t ~path e =
+  let push ?message t ~path e =
     let head = path @ [head_name] in
     Store.read (t "read") head >>= (function
     | None -> Q.create ()
     | Some q -> return q) >>= fun q ->
     Q.push q e >>= fun q' ->
-    Store.update (t "update") head q'
+    Store.update (t @@ opt_map "push" message) head q'
 
-  let pop_exn t ~path =
+  let pop_exn ?message t ~path =
     let head = path @ [head_name] in
     Store.read (t "read") head >>= function
     | None -> Lwt.fail Empty
     | Some q -> Q.pop q >>= function
     | None -> Lwt.fail Empty
     | Some (v, q') ->
-        Store.update (t "update") head q' >>= fun () ->
+        Store.update (t @@ opt_map "pop_exn" message) head q' >>= fun () ->
         return v
 
-  let pop t ~path =
+  let pop ?message t ~path =
     let head = path @ [head_name] in
     Store.read (t "read") head >>= function
     | None -> return None
     | Some q -> Q.pop q >>= function
     | None -> return None
     | Some (v, q') ->
-        Store.update (t "update") head q' >>= fun () ->
+        Store.update (t @@ opt_map "pop" message) head q' >>= fun () ->
         return (Some v)
 
   type cursor = Q.t

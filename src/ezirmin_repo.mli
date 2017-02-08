@@ -13,6 +13,7 @@ module type S = sig
 
   val predecessors  : repo -> branch -> branch list Lwt.t
   val update_branch : branch -> set:branch -> unit Lwt.t
+
   module Commit : sig
     type t
     val commit_of_branch : branch -> t option Lwt.t
@@ -30,9 +31,12 @@ module type S = sig
             -> [`Conflict of string | `Ok | `Error | `No_head ] Lwt.t
     val push : remote -> branch -> [`Ok | `Error] Lwt.t
   end
+
+  module Store : Irmin.S
 end
 
 module Make(Backend : Irmin.S_MAKER)(C : Irmin.Contents.S) : sig
-  module Store : (module type of Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1))
-  include S with type branch = string -> Store.t
+(*   module Store : (module type of Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)) *)
+  include S with type branch = string -> Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1).t
+             and module Store = Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)
 end

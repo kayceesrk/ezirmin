@@ -72,7 +72,7 @@ module type S = sig
   include Ezirmin_repo.S
   type value
   val read  : branch -> path:string list -> value option Lwt.t
-  val write : branch -> path:string list -> value -> unit Lwt.t
+  val write : ?message:string -> branch -> path:string list -> value -> unit Lwt.t
   val watch : branch -> path:string list
               -> ([ `Added of value | `Removed of value | `Updated of value * value ] -> unit Lwt.t)
               -> (unit -> unit Lwt.t) Lwt.t
@@ -93,9 +93,13 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type value = V.t = struct
     | None -> return None
     | Some v -> return @@ Some (R.get_contents v)
 
-  let write t ~path v =
+  let write ?message t ~path v =
+    let msg = match message with
+    | None -> "write"
+    | Some m -> m
+    in
     let head = path @ [head_name] in
-    Store.update (t "write") head (R.mk_value v)
+    Store.update (t msg) head (R.mk_value v)
 
   let watch branch ~path callback =
     let open R in
