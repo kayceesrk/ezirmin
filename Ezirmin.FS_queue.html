@@ -54,7 +54,7 @@ The type of element in the queue.<br>
 </div>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">branch -> path:string list -> unit Lwt.t</code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?message:string -> branch -> path:string list -> unit Lwt.t</code></pre><div class="info ">
 Create a new queue. If a queue already exists at this path, then this
       operation overwrites the old queue.<br>
 </div>
@@ -69,18 +69,19 @@ Returns <code class="code"><span class="keyword">true</span></code> if the queue
       return <code class="code"><span class="keyword">true</span></code>.<br>
 </div>
 
-<pre><span id="VALpush"><span class="keyword">val</span> push</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Queue.html#TYPEelt">elt</a> -> unit Lwt.t</code></pre><div class="info ">
-<code class="code">push b p e</code> pushes element <code class="code">e</code> to the back of the queue at path <code class="code">p</code> in
-      branch <code class="code">b</code>. If the queue does not exist at this path, then an empty queue
-      is created and <code class="code">e</code> is pushed to the back of this queue.<br>
+<pre><span id="VALpush"><span class="keyword">val</span> push</span> : <code class="type">?message:string -><br>       branch -> path:string list -> <a href="Ezirmin.Queue.html#TYPEelt">elt</a> -> unit Lwt.t</code></pre><div class="info ">
+<code class="code">push m b p e</code> pushes element <code class="code">e</code> to the back of the queue at path <code class="code">p</code> in
+      branch <code class="code">b</code> with commit message <code class="code">m</code>. If the queue does not exist at this
+      path, then an empty queue is created and <code class="code">e</code> is pushed to the back of
+      this queue.<br>
 </div>
 
-<pre><span id="VALpop_exn"><span class="keyword">val</span> pop_exn</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Queue.html#TYPEelt">elt</a> Lwt.t</code></pre><div class="info ">
+<pre><span id="VALpop_exn"><span class="keyword">val</span> pop_exn</span> : <code class="type">?message:string -> branch -> path:string list -> <a href="Ezirmin.Queue.html#TYPEelt">elt</a> Lwt.t</code></pre><div class="info ">
 Pop an element from the front of the queue. If the queue is empty or does
       not exist at this path, then exception <code class="code"><span class="constructor">Empty</span></code> is raised.<br>
 </div>
 
-<pre><span id="VALpop"><span class="keyword">val</span> pop</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Queue.html#TYPEelt">elt</a> option Lwt.t</code></pre><div class="info ">
+<pre><span id="VALpop"><span class="keyword">val</span> pop</span> : <code class="type">?message:string -><br>       branch -> path:string list -> <a href="Ezirmin.Queue.html#TYPEelt">elt</a> option Lwt.t</code></pre><div class="info ">
 Pop an element from the front of the queue. If the queue is empty of does
       not exist at this path, then <code class="code"><span class="constructor">None</span></code> is returned.<br>
 </div>

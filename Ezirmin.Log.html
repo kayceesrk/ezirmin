@@ -46,9 +46,9 @@ The type of cursor. The cursor is an abstraction that represents a specifc
 </div>
 
 
-<pre><span id="VALappend"><span class="keyword">val</span> append</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Log.html#TYPEelt">elt</a> -> unit Lwt.t</code></pre><div class="info ">
-<code class="code">append b p m</code> appends the message <code class="code">m</code> to the log at path <code class="code">b</code> in the
-      branch <code class="code">b</code>. Append is an O(1) operation.<br>
+<pre><span id="VALappend"><span class="keyword">val</span> append</span> : <code class="type">?message:string -><br>       branch -> path:string list -> <a href="Ezirmin.Log.html#TYPEelt">elt</a> -> unit Lwt.t</code></pre><div class="info ">
+<code class="code">append m b p c</code> appends the message <code class="code">m</code> to the log at path <code class="code">b</code> in the
+      branch <code class="code">b</code> with commit message <code class="code">c</code>. Append is an O(1) operation.<br>
 </div>
 
 <pre><span id="VALget_cursor"><span class="keyword">val</span> get_cursor</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Log.html#TYPEcursor">cursor</a> option Lwt.t</code></pre><div class="info ">

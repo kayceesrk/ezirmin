@@ -42,9 +42,9 @@ The type of content stored in the register.<br>
       operation returns <code class="code"><span class="constructor">None</span></code>.<br>
 </div>
 
-<pre><span id="VALwrite"><span class="keyword">val</span> write</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Lww_register.html#TYPEvalue">value</a> -> unit Lwt.t</code></pre><div class="info ">
-<code class="code">write b p v</code> updates the value of the register at path <code class="code">b</code> in branch <code class="code">b</code>
-      to <code class="code">v</code>.<br>
+<pre><span id="VALwrite"><span class="keyword">val</span> write</span> : <code class="type">?message:string -><br>       branch -> path:string list -> <a href="Ezirmin.Lww_register.html#TYPEvalue">value</a> -> unit Lwt.t</code></pre><div class="info ">
+<code class="code">write b p m v</code> updates the value of the register at path <code class="code">b</code> in branch <code class="code">b</code>
+      to <code class="code">v</code> with commit message <code class="code">m</code>.<br>
 </div>
 
 <pre><span id="VALwatch"><span class="keyword">val</span> watch</span> : <code class="type">branch -><br>       path:string list -><br>       ([ `Added of <a href="Ezirmin.Lww_register.html#TYPEvalue">value</a><br>        | `Removed of <a href="Ezirmin.Lww_register.html#TYPEvalue">value</a><br>        | `Updated of <a href="Ezirmin.Lww_register.html#TYPEvalue">value</a> * <a href="Ezirmin.Lww_register.html#TYPEvalue">value</a> ] -><br>        unit Lwt.t) -><br>       (unit -> unit Lwt.t) Lwt.t</code></pre><div class="info ">

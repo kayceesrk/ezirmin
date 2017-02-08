@@ -54,9 +54,9 @@ The type of value stored in the log.<br>
 </div>
 
 
-<pre><span id="VALappend"><span class="keyword">val</span> append</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Blob_log.html#TYPEelt">elt</a> -> unit Lwt.t</code></pre><div class="info ">
-<code class="code">append b p e</code> appends a log message <code class="code">e</code> to the log at path <code class="code">p</code> in branch
-      <code class="code">b</code>.<br>
+<pre><span id="VALappend"><span class="keyword">val</span> append</span> : <code class="type">?message:string -><br>       branch -> path:string list -> <a href="Ezirmin.Blob_log.html#TYPEelt">elt</a> -> unit Lwt.t</code></pre><div class="info ">
+<code class="code">append m b p e</code> appends a log message <code class="code">e</code> to the log at path <code class="code">p</code> in branch
+      <code class="code">b</code> with commit message <code class="code">m</code>.<br>
 </div>
 
 <pre><span id="VALread_all"><span class="keyword">val</span> read_all</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Blob_log.html#TYPEelt">elt</a> list Lwt.t</code></pre><div class="info ">

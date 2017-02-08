@@ -41,8 +41,10 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Conflict</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">No_head</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;]&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;push&nbsp;:&nbsp;remote&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;]&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Store</span>&nbsp;:&nbsp;<span class="constructor">Irmin</span>.<span class="constructor">S</span>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;elt
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;append&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;?message:string&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Blob_log</span>.elt&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="constructor">Lwt</span>.t
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;read_all&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;branch&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;path:string&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Ezirmin</span>.<span class="constructor">Blob_log</span>.elt&nbsp;list&nbsp;<span class="constructor">Lwt</span>.t

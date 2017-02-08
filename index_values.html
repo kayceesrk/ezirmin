@@ -17,14 +17,14 @@
 <tr><td align="left"><br>A</td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALappend">append</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
 <td><div class="info">
-<code class="code">append b p m</code> appends the message <code class="code">m</code> to the log at path <code class="code">b</code> in the
-      branch <code class="code">b</code>.
+<code class="code">append m b p c</code> appends the message <code class="code">m</code> to the log at path <code class="code">b</code> in the
+      branch <code class="code">b</code> with commit message <code class="code">c</code>.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Blob_log.html#VALappend">append</a> [<a href="Ezirmin.Blob_log.html">Ezirmin.Blob_log</a>]</td>
 <td><div class="info">
-<code class="code">append b p e</code> appends a log message <code class="code">e</code> to the log at path <code class="code">p</code> in branch
-      <code class="code">b</code>.
+<code class="code">append m b p e</code> appends a log message <code class="code">e</code> to the log at path <code class="code">p</code> in branch
+      <code class="code">b</code> with commit message <code class="code">m</code>.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALat_time">at_time</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
@@ -177,8 +177,8 @@ Push updates to remote.
 </td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALpush">push</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
 <td><div class="info">
-<code class="code">push b p e</code> pushes element <code class="code">e</code> to the back of the queue at path <code class="code">p</code> in
-      branch <code class="code">b</code>.
+<code class="code">push m b p e</code> pushes element <code class="code">e</code> to the back of the queue at path <code class="code">p</code> in
+      branch <code class="code">b</code> with commit message <code class="code">m</code>.
 </div>
 </td></tr>
 <tr><td align="left"><br>R</td></tr>
@@ -249,8 +249,8 @@ Return a list with the elements in the queue.
 </td></tr>
 <tr><td><a href="Ezirmin.Lww_register.html#VALwrite">write</a> [<a href="Ezirmin.Lww_register.html">Ezirmin.Lww_register</a>]</td>
 <td><div class="info">
-<code class="code">write b p v</code> updates the value of the register at path <code class="code">b</code> in branch <code class="code">b</code>
-      to <code class="code">v</code>.
+<code class="code">write b p m v</code> updates the value of the register at path <code class="code">b</code> in branch <code class="code">b</code>
+      to <code class="code">v</code> with commit message <code class="code">m</code>.
 </div>
 </td></tr>
 </table>
