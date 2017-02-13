@@ -140,6 +140,31 @@ module type Blob_log = sig
       @return a function to disable the watch. *)
 end
 
+module type Counter = sig
+
+  (** {1 Mergeable counters} *)
+
+  include Repo
+
+  val inc : ?message:string -> ?by:int -> branch -> path:string list -> unit Lwt.t
+  (** [inc m d b p] increments the counter at path [p] in branch [b] by [d].
+      The commit message is [m]. *)
+
+  val dec : ?message:string -> ?by:int -> branch -> path:string list -> unit Lwt.t
+  (** [dec m d b p] decrements the counter at path [p] in branch [b] by [d].
+      The commit message is [m]. *)
+
+  val read : branch -> path:string list -> int Lwt.t
+  (** [read b p] reads the value of the counter at path [p] in branch [b]. *)
+
+  val watch : branch -> path:string list -> (int -> unit Lwt.t) -> (unit -> unit Lwt.t) Lwt.t
+  (** [watch b p cb] watches the counter at the path [p] in the branch [b]. On each
+      counter update, the callback function [cb v] is invoked, where [v] is the
+      new value of the counter. Before installing watches, a listener thread
+      must be started with {!Repo.install_listener} that watches the store for
+      changes. @return a function to disable the watch. *)
+end
+
 module type Log = sig
 
   (** {1 An efficient write-optimized append-only logs} *)
@@ -303,6 +328,52 @@ module type Queue = sig
       @return a function to disable the watch. *)
 end
 
+module type Rope_container = sig
+  type a
+  include Irmin.Contents.S
+    with module Path = Irmin.Path.String_list
+
+  val empty : t
+  val length : t -> int
+  val set : t -> int -> a -> t
+  val get : t -> int -> a
+  val insert : t -> int -> t -> t
+  val delete : t -> int -> int -> t
+  val append : t -> t -> t
+  val concat : t -> t list -> t
+  val split : t -> int -> (t * t)
+end
+
+module type Rope = sig
+  include Ezirmin_repo.S
+
+  type t
+  type value
+  type cont
+
+  val create : unit -> t Lwt.t
+  val make : cont -> t Lwt.t
+  val flush : t -> cont Lwt.t
+
+  val is_empty : t -> bool Lwt.t
+  val length : t -> int Lwt.t
+
+  val set : t -> pos:int -> value -> t Lwt.t
+  val get : t -> pos:int -> value Lwt.t
+  val insert : t -> pos:int -> cont -> t Lwt.t
+  val delete : t -> pos:int -> len:int -> t Lwt.t
+  val append : t -> t -> t Lwt.t
+  val concat : sep:t -> t list -> t Lwt.t
+  val split : t -> pos:int -> (t * t) Lwt.t
+
+  val write : ?message:string -> branch -> path:string list -> t -> unit Lwt.t
+  val read  : branch -> path:string list -> t option Lwt.t
+end
+
+module Make_rope (AO : Irmin.AO_MAKER) (S: Irmin.S_MAKER) (C : Rope_container) : Rope
+  with type value = C.a and type cont = C.t
+
+module type Rope_string = Rope with type cont = string and type value = char
 
 (** {2 File system backend} *)
 
@@ -310,6 +381,9 @@ end
 
 module FS_blob_log (V : Tc.S0) : Blob_log with type elt = V.t
 (** A log abstraction that uses git filesystem backend. *)
+
+module FS_counter : Counter
+(** A counter that uses git filesystem backend. *)
 
 module FS_log (V : Tc.S0) : Log with type elt = V.t
 (** An efficient write-optimized log abstraction that uses the git filesystem
@@ -321,12 +395,17 @@ module FS_lww_register (V : Tc.S0) : Lww_register with type value = V.t
 module FS_queue (V : Tc.S0) : Queue with type elt = V.t
 (** A Queue that uses the git filesystem backend. *)
 
+module FS_rope_string : Rope_string
+
 (** {2 In-memory backend} *)
 
 (** Mergeable datatypes instantiated with git in-memory backend. *)
 
 module Memory_blob_log (V : Tc.S0) : Blob_log with type elt = V.t
 (** A log abstraction that uses git in-memory backend. *)
+
+module Memory_counter : Counter
+(** A counter that uses git in-memory backend. *)
 
 module Memory_log (V : Tc.S0) : Log with type elt = V.t
 (** An efficient write-optimized log abstraction that uses the git in-memory
@@ -338,6 +417,7 @@ module Memory_lww_register (V : Tc.S0) : Lww_register with type value = V.t
 module Memory_queue (V : Tc.S0) : Queue with type elt = V.t
 (** A Queue that uses the git in-memory backend. *)
 
+module Memory_rope_string : Rope_string
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2016 KC Sivaramakrishnan

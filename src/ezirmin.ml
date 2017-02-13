@@ -26,6 +26,11 @@ module FS_blob_log(V:Tc.S0) =
 module Memory_blob_log(V:Tc.S0) =
   Ezirmin_blob_log.Make(Irmin_unix.Irmin_git.Memory)(V)
 
+module type Counter = Ezirmin_counter.S
+
+module FS_counter = Ezirmin_counter.Make(Irmin_unix.Irmin_git.FS)
+module Memory_counter = Ezirmin_counter.Make(Irmin_unix.Irmin_git.Memory)
+
 module type Log = Ezirmin_log.S
 
 module FS_log(V:Tc.S0) =
@@ -46,6 +51,17 @@ module Memory_queue (V : Tc.S0) =
   Ezirmin_queue.Make(Make_git_AO_maker(Git_unix.Memory))(Irmin_unix.Irmin_git.Memory)(V)
 module FS_queue (V : Tc.S0) =
   Ezirmin_queue.Make(Make_git_AO_maker(Git_unix.FS))(Irmin_unix.Irmin_git.FS)(V)
+
+module type Rope_container = Ezirmin_rope.Container
+module type Rope = Ezirmin_rope.S
+module Make_rope (AO : Irmin.AO_MAKER) (S : Irmin.S_MAKER) (C:Rope_container) =
+  Ezirmin_rope.Make(AO)(S)(C)
+
+module type Rope_string = Ezirmin_rope_string.S
+module Memory_rope_string =
+  Ezirmin_rope_string.Make(Make_git_AO_maker(Git_unix.Memory))(Irmin_unix.Irmin_git.Memory)
+module FS_rope_string =
+  Ezirmin_rope_string.Make(Make_git_AO_maker(Git_unix.FS))(Irmin_unix.Irmin_git.FS)
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2016 KC Sivaramakrishnan
