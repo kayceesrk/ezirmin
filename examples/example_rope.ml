@@ -6,8 +6,6 @@ let m = Lwt_main.run (init () >>= master);;
 let t = Lwt_main.run (
   make "they're good dogs Brent" >>= fun t ->
   write m [] t >>= fun _ ->
-  to_string t >>= fun st ->
-  print_endline st;
   Lwt.return t
 )
 

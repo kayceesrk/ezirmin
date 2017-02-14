@@ -38,8 +38,6 @@ module type S = sig
 
   val write : ?message:string -> branch -> path:string list -> t -> unit Lwt.t
   val read  : branch -> path:string list -> t option Lwt.t
-
-  val to_string : t -> string Lwt.t
 end
 
 module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) : S

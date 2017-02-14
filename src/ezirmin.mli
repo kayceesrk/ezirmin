@@ -438,8 +438,6 @@ module type Rope = sig
   val read  : branch -> path:string list -> t option Lwt.t
   (** [read b p] returns the rope at path [p] in branch [b]. Returns [None] if
       a rope does not exist at this path. *)
-
-  val to_string : t -> string Lwt.t
 end
 
 module type Rope_string = Rope with type content = string and type atom = char

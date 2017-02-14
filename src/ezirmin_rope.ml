@@ -497,31 +497,6 @@ module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
     Store_.read_exn store index.root >>= fun t ->
     get_rec i t
 
-  type rope_ =
-    | L of string
-    | N of {left: rope_; right: rope_;
-            l_len: int; r_len: int}
-  [@@deriving show]
-
-  let to_string index =
-    let open C in
-    Store_.create () >>= fun store ->
-
-    let rec get_rec = function
-      | Index _ -> assert false
-      | Leaf leaf -> return @@ L (Ezjsonm.to_string @@ Ezjsonm.wrap @@ V.to_json leaf)
-      | Node node ->
-          Store_.read_exn store node.left.key >>= fun t_left ->
-          get_rec t_left >>= fun left ->
-          Store_.read_exn store node.right.key >>= fun t_right ->
-          get_rec t_right >>= fun right ->
-          return (N {left; right; l_len = node.ind; r_len = node.len - node.ind})
-    in
-
-    Store_.read_exn store index.root >>= fun t ->
-    get_rec t  >>= fun v ->
-    return @@ show_rope_ v
-
   (*
    * Insert the container 'cont' at the position 'i' in the rope.
    * Rebalancing is made from bottom to up when the rope is rebuild.
@@ -913,8 +888,6 @@ module type S = sig
 
   val write : ?message:string -> branch -> path:string list -> t -> unit Lwt.t
   val read  : branch -> path:string list -> t option Lwt.t
-
-  val to_string : t -> string Lwt.t
 end
 
 module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) : S
