@@ -22,15 +22,15 @@ open Lwt.Infix
 
 let return = Lwt.return
 
-module type Container = sig
-  type a
+module type Content = sig
+  type atom
   include Irmin.Contents.S
     with module Path = Irmin.Path.String_list
 
   val empty : t
   val length : t -> int
-  val set : t -> int -> a -> t
-  val get : t -> int -> a
+  val set : t -> int -> atom -> t
+  val get : t -> int -> atom
   val insert : t -> int -> t -> t
   val delete : t -> int -> int -> t
   val append : t -> t -> t
@@ -38,7 +38,7 @@ module type Container = sig
   val split : t -> int -> (t * t)
 end
 
-module Rope(AO : Irmin.AO_MAKER)(V : Container) = struct
+module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
 
   module Path = V.Path
   module K = Irmin.Hash.SHA1
@@ -497,7 +497,30 @@ module Rope(AO : Irmin.AO_MAKER)(V : Container) = struct
     Store_.read_exn store index.root >>= fun t ->
     get_rec i t
 
+  type rope_ =
+    | L of string
+    | N of {left: rope_; right: rope_;
+            l_len: int; r_len: int}
+  [@@deriving show]
 
+  let to_string index =
+    let open C in
+    Store_.create () >>= fun store ->
+
+    let rec get_rec = function
+      | Index _ -> assert false
+      | Leaf leaf -> return @@ L (Ezjsonm.to_string @@ Ezjsonm.wrap @@ V.to_json leaf)
+      | Node node ->
+          Store_.read_exn store node.left.key >>= fun t_left ->
+          get_rec t_left >>= fun left ->
+          Store_.read_exn store node.right.key >>= fun t_right ->
+          get_rec t_right >>= fun right ->
+          return (N {left; right; l_len = node.ind; r_len = node.len - node.ind})
+    in
+
+    Store_.read_exn store index.root >>= fun t ->
+    get_rec t  >>= fun v ->
+    return @@ show_rope_ v
 
   (*
    * Insert the container 'cont' at the position 'i' in the rope.
@@ -740,8 +763,8 @@ module Rope(AO : Irmin.AO_MAKER)(V : Container) = struct
     end)
   include T
 
-  type value = V.a
-  type cont = V.t
+  type atom = V.atom
+  type content = V.t
 
   (*
    * Merge the given two ropes with the help of their common ancestor. The
@@ -870,19 +893,19 @@ module type S = sig
   include Ezirmin_repo.S
 
   type t
-  type value
-  type cont
+  type atom
+  type content
 
   val create : unit -> t Lwt.t
-  val make : cont -> t Lwt.t
-  val flush : t -> cont Lwt.t
+  val make : content -> t Lwt.t
+  val flush : t -> content Lwt.t
 
   val is_empty : t -> bool Lwt.t
   val length : t -> int Lwt.t
 
-  val set : t -> pos:int -> value -> t Lwt.t
-  val get : t -> pos:int -> value Lwt.t
-  val insert : t -> pos:int -> cont -> t Lwt.t
+  val set : t -> pos:int -> atom -> t Lwt.t
+  val get : t -> pos:int -> atom Lwt.t
+  val insert : t -> pos:int -> content -> t Lwt.t
   val delete : t -> pos:int -> len:int -> t Lwt.t
   val append : t -> t -> t Lwt.t
   val concat : sep:t -> t list -> t Lwt.t
@@ -890,10 +913,12 @@ module type S = sig
 
   val write : ?message:string -> branch -> path:string list -> t -> unit Lwt.t
   val read  : branch -> path:string list -> t option Lwt.t
+
+  val to_string : t -> string Lwt.t
 end
 
-module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Container) : S
-  with type value = V.a and type cont = V.t = struct
+module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) : S
+  with type atom = V.atom and type content = V.t = struct
 
   module R = Rope(AO)(V)
   include R
@@ -914,4 +939,5 @@ module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Container) : S
   let read t ~path =
     let head = path @ [head_name] in
     Store.read (t "read") head
+
 end

@@ -328,52 +328,122 @@ module type Queue = sig
       @return a function to disable the watch. *)
 end
 
-module type Rope_container = sig
-  type a
+module type Rope_content = sig
+
+  (** {1 Mergeable rope contents} *)
+
+  (** [Rope_content] provides the abtraction for contents of mergeable ropes. *)
+
+  type atom
+  (** The type of the element in the content. For example, in the case of
+      [string] content, the atom would be [char]. *)
+
   include Irmin.Contents.S
     with module Path = Irmin.Path.String_list
+  (** Rope contents needs to be serializable *)
 
   val empty : t
+  (** Empty content *)
+
   val length : t -> int
-  val set : t -> int -> a -> t
-  val get : t -> int -> a
+  (** Length of contents *)
+
+  val set : t -> int -> atom -> t
+  (** [set c i v] sets the element at position [i] to [v] in [c]. The update
+      may be inplace. *)
+
+  val get : t -> int -> atom
+  (** [get c i] gets the element at position i in [c]. *)
+
   val insert : t -> int -> t -> t
+  (** [insert c i c'] inserts the content [c'] at position [i] in [c]. *)
+
   val delete : t -> int -> int -> t
+  (** [delete c i n] deletes [n] atoms at position [i] in [c]. *)
+
   val append : t -> t -> t
+  (** [append c c'] returns a new content with [c'] appended to the end of [c]. *)
+
   val concat : t -> t list -> t
+  (** [concat sep cl] returns a new content which concatenates the contents in
+      [cl] separated by [sep]. *)
+
   val split : t -> int -> (t * t)
+  (** [split c i] splits [c] at position [i] and returns a pair of contents. *)
 end
 
 module type Rope = sig
+
+  (** {1 Mergeable rope} *)
+
+  (** [Rope] provides an efficient mergeable data structure for storing and
+      manipulating int-indexed sequence of contents. *)
+
   include Ezirmin_repo.S
 
   type t
-  type value
-  type cont
+  (** The type of rope. *)
+
+  type atom
+  (** The type of an element in the {!content}. *)
+
+  type content
+  (** The type of rope contents. *)
 
   val create : unit -> t Lwt.t
-  val make : cont -> t Lwt.t
-  val flush : t -> cont Lwt.t
+  (** Create an empty rope. *)
+
+  val make : content -> t Lwt.t
+  (** Make a rope from the given content. *)
+
+  val flush : t -> content Lwt.t
+  (** Flush a rope to a content representation. *)
 
   val is_empty : t -> bool Lwt.t
-  val length : t -> int Lwt.t
+  (** Returns [true] if the rope is empty. *)
 
-  val set : t -> pos:int -> value -> t Lwt.t
-  val get : t -> pos:int -> value Lwt.t
-  val insert : t -> pos:int -> cont -> t Lwt.t
+  val length : t -> int Lwt.t
+  (** Return the length of the rope. *)
+
+  val set : t -> pos:int -> atom -> t Lwt.t
+  (** [set r i v] returns a new rope with element at position [i] updated to
+      [v] in [r]. *)
+
+  val get : t -> pos:int -> atom Lwt.t
+  (** [get r i] return the element at position [i] in [r]. *)
+
+  val insert : t -> pos:int -> content -> t Lwt.t
+  (** [insert r i c] returns a new rope with content [c] inserted at position
+      [i] in [r]. *)
+
   val delete : t -> pos:int -> len:int -> t Lwt.t
+  (** [delete r i n] returns a new rope with [n] elements deleted from position
+      [i] in [r]. *)
+
   val append : t -> t -> t Lwt.t
+  (** [append r r'] returns a new rope with [r'] appended to the end of [r]. *)
+
   val concat : sep:t -> t list -> t Lwt.t
+  (** [concat s rl] returns a new rope that is a concatenation of ropes from
+      [rl] separated by [s]. *)
+
   val split : t -> pos:int -> (t * t) Lwt.t
+  (** [split r i] returns a pair of new ropes obtained by splitting [r] at
+      position [i]. *)
 
   val write : ?message:string -> branch -> path:string list -> t -> unit Lwt.t
+  (** [update m b p r] updates the rope at path [p] in branch [b] to [r]. The
+      commit message is [m]. *)
+
   val read  : branch -> path:string list -> t option Lwt.t
+  (** [read b p] returns the rope at path [p] in branch [b]. Returns [None] if
+      a rope does not exist at this path. *)
+
+  val to_string : t -> string Lwt.t
 end
 
-module Make_rope (AO : Irmin.AO_MAKER) (S: Irmin.S_MAKER) (C : Rope_container) : Rope
-  with type value = C.a and type cont = C.t
-
-module type Rope_string = Rope with type cont = string and type value = char
+module type Rope_string = Rope with type content = string and type atom = char
+(** A rope whose contents are strings. *)
 
 (** {2 File system backend} *)
 
@@ -395,7 +465,12 @@ module FS_lww_register (V : Tc.S0) : Lww_register with type value = V.t
 module FS_queue (V : Tc.S0) : Queue with type elt = V.t
 (** A Queue that uses the git filesystem backend. *)
 
+module FS_rope (C : Rope_content) : Rope
+  with type atom = C.atom and type content = C.t
+(** A rope that uses the git filesystem backend. *)
+
 module FS_rope_string : Rope_string
+(** A string rope that uses the git filesystem backend. *)
 
 (** {2 In-memory backend} *)
 
@@ -417,7 +492,12 @@ module Memory_lww_register (V : Tc.S0) : Lww_register with type value = V.t
 module Memory_queue (V : Tc.S0) : Queue with type elt = V.t
 (** A Queue that uses the git in-memory backend. *)
 
+module Memory_rope (C : Rope_content) : Rope
+  with type atom = C.atom and type content = C.t
+(** A rope that uses the git in-memory backend. *)
+
 module Memory_rope_string : Rope_string
+(** A string rope that uses the git in-memory backend. *)
 
 (*---------------------------------------------------------------------------
    Copyright (c) 2016 KC Sivaramakrishnan

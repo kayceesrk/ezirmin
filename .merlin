@@ -5,6 +5,7 @@ PKG ptime.clock.os
 PKG git
 PKG tc
 PKG ppx_jane
+PKG ppx_deriving.std
 S src
 S test
 S bench

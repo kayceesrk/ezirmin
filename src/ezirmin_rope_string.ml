@@ -18,10 +18,10 @@
 
 open Lwt.Infix
 
-module Str : Ezirmin_rope.Container with type a = char and type t = string = struct
+module Str : Ezirmin_rope.Content with type atom = char and type t = string = struct
   include Irmin.Contents.String
 
-  type a = char
+  type atom = char
 
   let empty = ""
   let length = String.length
@@ -197,6 +197,7 @@ module Str : Ezirmin_rope.Container with type a = char and type t = string = str
       old () >>= function  (* FIXME *)
       | `Conflict _ | `Ok None -> conflict "merge"
       | `Ok (Some old) ->
+          Printf.printf "Rope_string.merge: %s %s %s\n" old r1 r2;
           let _,p = diff old r1 in
           let _,q = diff old r2 in
           let _,q' = transform p q in
@@ -206,31 +207,6 @@ module Str : Ezirmin_rope.Container with type a = char and type t = string = str
     fun path -> Irmin.Merge.option (module Irmin.Contents.String) (merge_rope path)
 end
 
-module type S = sig
-  include Ezirmin_repo.S
-
-  type t
-  type value = char
-  type cont = string
-
-  val create : unit -> t Lwt.t
-  val make : string -> t Lwt.t
-  val flush : t -> string Lwt.t
-
-  val is_empty : t -> bool Lwt.t
-  val length : t -> int Lwt.t
-
-  val set : t -> pos:int -> char -> t Lwt.t
-  val get : t -> pos:int -> char Lwt.t
-  val insert : t -> pos:int -> string -> t Lwt.t
-  val delete : t -> pos:int -> len:int -> t Lwt.t
-  val append : t -> t -> t Lwt.t
-  val concat : sep:t -> t list -> t Lwt.t
-  val split : t -> pos:int -> (t * t) Lwt.t
-
-  val write : ?message:string -> branch -> path:string list -> t -> unit Lwt.t
-  val read  : branch -> path:string list -> t option Lwt.t
-end
-
+module type S = Ezirmin_rope.S with type atom = char and type content = string
 
 module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER) = Ezirmin_rope.Make(AO)(S)(Str)

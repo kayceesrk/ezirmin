@@ -52,10 +52,13 @@ module Memory_queue (V : Tc.S0) =
 module FS_queue (V : Tc.S0) =
   Ezirmin_queue.Make(Make_git_AO_maker(Git_unix.FS))(Irmin_unix.Irmin_git.FS)(V)
 
-module type Rope_container = Ezirmin_rope.Container
+module type Rope_content = Ezirmin_rope.Content
+
 module type Rope = Ezirmin_rope.S
-module Make_rope (AO : Irmin.AO_MAKER) (S : Irmin.S_MAKER) (C:Rope_container) =
-  Ezirmin_rope.Make(AO)(S)(C)
+module Memory_rope (C:Rope_content) =
+  Ezirmin_rope.Make(Make_git_AO_maker(Git_unix.Memory))(Irmin_unix.Irmin_git.Memory)(C)
+module FS_rope (C:Rope_content) =
+  Ezirmin_rope.Make(Make_git_AO_maker(Git_unix.FS))(Irmin_unix.Irmin_git.Memory)(C)
 
 module type Rope_string = Ezirmin_rope_string.S
 module Memory_rope_string =
