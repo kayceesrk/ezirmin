@@ -197,7 +197,6 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
       old () >>= function  (* FIXME *)
       | `Conflict _ | `Ok None -> conflict "merge"
       | `Ok (Some old) ->
-          Printf.printf "Rope_string.merge: %s %s %s\n" old r1 r2;
           let _,p = diff old r1 in
           let _,q = diff old r2 in
           let _,q' = transform p q in
