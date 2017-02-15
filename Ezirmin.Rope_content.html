@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Ezirmin.Queue.html">
+<link rel="next" href="Ezirmin.Rope.html">
+<link rel="Up" href="Ezirmin.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><link title="Mergeable rope contents" rel="Section" href="#1_Mergeableropecontents">
+<title>Ezirmin.Rope_content</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Ezirmin.Queue.html" title="Ezirmin.Queue">Previous</a>
+&nbsp;<a class="up" href="Ezirmin.html" title="Ezirmin">Up</a>
+&nbsp;<a class="post" href="Ezirmin.Rope.html" title="Ezirmin.Rope">Next</a>
+</div>
+<h1>Module type <a href="type_Ezirmin.Rope_content.html">Ezirmin.Rope_content</a></h1>
+
+<pre><span class="keyword">module type</span> Rope_content = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Rope_content.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<br>
+<h1 id="1_Mergeableropecontents">Mergeable rope contents</h1><br>
+<br>
+<code class="code"><span class="constructor">Rope_content</span></code> provides the abtraction for contents of mergeable ropes.<br>
+
+<pre><span id="TYPEatom"><span class="keyword">type</span> <code class="type"></code>atom</span> </pre>
+<div class="info ">
+The type of the element in the content. For example, in the case of
+      <code class="code">string</code> content, the atom would be <code class="code">char</code>.<br>
+</div>
+
+
+<pre><span class="keyword">include</span> Irmin.Contents.S</pre>
+<br>
+Rope contents needs to be serializable<br>
+
+<pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">t</code></pre><div class="info ">
+Empty content<br>
+</div>
+
+<pre><span id="VALlength"><span class="keyword">val</span> length</span> : <code class="type">t -> int</code></pre><div class="info ">
+Length of contents<br>
+</div>
+
+<pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type">t -> int -> <a href="Ezirmin.Rope_content.html#TYPEatom">atom</a> -> t</code></pre><div class="info ">
+<code class="code">set c i v</code> sets the element at position <code class="code">i</code> to <code class="code">v</code> in <code class="code">c</code>. The update
+      may be inplace.<br>
+</div>
+
+<pre><span id="VALget"><span class="keyword">val</span> get</span> : <code class="type">t -> int -> <a href="Ezirmin.Rope_content.html#TYPEatom">atom</a></code></pre><div class="info ">
+<code class="code">get c i</code> gets the element at position i in <code class="code">c</code>.<br>
+</div>
+
+<pre><span id="VALinsert"><span class="keyword">val</span> insert</span> : <code class="type">t -> int -> t -> t</code></pre><div class="info ">
+<code class="code">insert c i c'</code> inserts the content <code class="code">c'</code> at position <code class="code">i</code> in <code class="code">c</code>.<br>
+</div>
+
+<pre><span id="VALdelete"><span class="keyword">val</span> delete</span> : <code class="type">t -> int -> int -> t</code></pre><div class="info ">
+<code class="code">delete c i n</code> deletes <code class="code">n</code> atoms at position <code class="code">i</code> in <code class="code">c</code>.<br>
+</div>
+
+<pre><span id="VALappend"><span class="keyword">val</span> append</span> : <code class="type">t -> t -> t</code></pre><div class="info ">
+<code class="code">append c c'</code> returns a new content with <code class="code">c'</code> appended to the end of <code class="code">c</code>.<br>
+</div>
+
+<pre><span id="VALconcat"><span class="keyword">val</span> concat</span> : <code class="type">t -> t list -> t</code></pre><div class="info ">
+<code class="code">concat sep cl</code> returns a new content which concatenates the contents in
+      <code class="code">cl</code> separated by <code class="code">sep</code>.<br>
+</div>
+
+<pre><span id="VALsplit"><span class="keyword">val</span> split</span> : <code class="type">t -> int -> t * t</code></pre><div class="info ">
+<code class="code">split c i</code> splits <code class="code">c</code> at position <code class="code">i</code> and returns a pair of contents.<br>
+</div>
+</body></html>

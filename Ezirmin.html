@@ -24,7 +24,7 @@
 An easy interface on top of the Irmin library.
 <p>
 
-    <em>0.2.0 — <a href="https://github.com/kayceesrk/ezirmin ">homepage</a></em><br>
+    <em>0.2.0-6-g3d8236f — <a href="https://github.com/kayceesrk/ezirmin ">homepage</a></em><br>
 </div>
 <hr width="100%">
 <br>
@@ -34,15 +34,26 @@ An easy interface on top of the Irmin library.
 <h2 id="2_Mergeabledatastructures">Mergeable datastructures</h2><br>
 
 <pre><span class="keyword">module type</span> <a href="Ezirmin.Blob_log.html">Blob_log</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Blob_log.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module type</span> <a href="Ezirmin.Counter.html">Counter</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Counter.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module type</span> <a href="Ezirmin.Log.html">Log</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Log.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module type</span> <a href="Ezirmin.Lww_register.html">Lww_register</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Lww_register.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span class="keyword">module type</span> <a href="Ezirmin.Queue.html">Queue</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Queue.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><br>
+<pre><span class="keyword">module type</span> <a href="Ezirmin.Queue.html">Queue</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Queue.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module type</span> <a href="Ezirmin.Rope_content.html">Rope_content</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Rope_content.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module type</span> <a href="Ezirmin.Rope.html">Rope</a> = <code class="code"><span class="keyword">sig</span></code> <a href="Ezirmin.Rope.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module type</span> <a href="Ezirmin.Rope_string.html">Rope_string</a> = <code class="type"><a href="Ezirmin.Rope.html">Rope</a></code><code class="type">  with type content = string and type atom = char</code></pre><div class="info">
+A rope whose contents are strings.
+</div>
+<br>
 <h2 id="2_Filesystembackend">File system backend</h2><br>
 <br>
 Mergeable datatypes instantiated with git filesystem backend.<br>
 
 <pre><span class="keyword">module</span> <a href="Ezirmin.FS_blob_log.html">FS_blob_log</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Blob_log.html">Blob_log</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
 A log abstraction that uses git filesystem backend.
+</div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.FS_counter.html">FS_counter</a>: <code class="type"><a href="Ezirmin.Counter.html">Counter</a></code><code class="type"> </code></pre><div class="info">
+A counter that uses git filesystem backend.
 </div>
 
 <pre><span class="keyword">module</span> <a href="Ezirmin.FS_log.html">FS_log</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Log.html">Log</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
@@ -57,6 +68,15 @@ An Lww_reigster that uses the git filesystem backend.
 <pre><span class="keyword">module</span> <a href="Ezirmin.FS_queue.html">FS_queue</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Queue.html">Queue</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
 A Queue that uses the git filesystem backend.
 </div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.FS_rope.html">FS_rope</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">C</span></code><code class="code"> : </code><code class="type"><a href="Ezirmin.Rope_content.html">Rope_content</a></code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Rope.html">Rope</a></code><code class="type"> 
+  with type atom = C.atom and type content = C.t</code></div></pre><div class="info">
+A rope that uses the git filesystem backend.
+</div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.FS_rope_string.html">FS_rope_string</a>: <code class="type"><a href="Ezirmin.Rope_string.html">Rope_string</a></code><code class="type"> </code></pre><div class="info">
+A string rope that uses the git filesystem backend.
+</div>
 <br>
 <h2 id="2_Inmemorybackend">In-memory backend</h2><br>
 <br>
@@ -64,6 +84,10 @@ Mergeable datatypes instantiated with git in-memory backend.<br>
 
 <pre><span class="keyword">module</span> <a href="Ezirmin.Memory_blob_log.html">Memory_blob_log</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Blob_log.html">Blob_log</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
 A log abstraction that uses git in-memory backend.
+</div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.Memory_counter.html">Memory_counter</a>: <code class="type"><a href="Ezirmin.Counter.html">Counter</a></code><code class="type"> </code></pre><div class="info">
+A counter that uses git in-memory backend.
 </div>
 
 <pre><span class="keyword">module</span> <a href="Ezirmin.Memory_log.html">Memory_log</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Log.html">Log</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
@@ -77,5 +101,14 @@ An Lww_register abstraction that uses the git in-memory backend.
 
 <pre><span class="keyword">module</span> <a href="Ezirmin.Memory_queue.html">Memory_queue</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">V</span></code><code class="code"> : </code><code class="type">Tc.S0</code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Queue.html">Queue</a></code><code class="type">  with type elt = V.t</code></div></pre><div class="info">
 A Queue that uses the git in-memory backend.
+</div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.Memory_rope.html">Memory_rope</a>: <div class="sig_block"><code class="code"><span class="keyword">functor</span> (</code><code class="code"><span class="constructor">C</span></code><code class="code"> : </code><code class="type"><a href="Ezirmin.Rope_content.html">Rope_content</a></code><code class="code">) <span class="keywordsign">-&gt;</span> </code><code class="type"><a href="Ezirmin.Rope.html">Rope</a></code><code class="type"> 
+  with type atom = C.atom and type content = C.t</code></div></pre><div class="info">
+A rope that uses the git in-memory backend.
+</div>
+
+<pre><span class="keyword">module</span> <a href="Ezirmin.Memory_rope_string.html">Memory_rope_string</a>: <code class="type"><a href="Ezirmin.Rope_string.html">Rope_string</a></code><code class="type"> </code></pre><div class="info">
+A string rope that uses the git in-memory backend.
 </div>
 </body></html>

@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Ezirmin.FS_rope.html">
+<link rel="next" href="Ezirmin.Memory_blob_log.html">
+<link rel="Up" href="Ezirmin.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Ezirmin" rel="Chapter" href="Ezirmin.html"><link title="Mergeable rope" rel="Section" href="#1_Mergeablerope">
+<title>Ezirmin.FS_rope_string</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Ezirmin.FS_rope.html" title="Ezirmin.FS_rope">Previous</a>
+&nbsp;<a class="up" href="Ezirmin.html" title="Ezirmin">Up</a>
+&nbsp;<a class="post" href="Ezirmin.Memory_blob_log.html" title="Ezirmin.Memory_blob_log">Next</a>
+</div>
+<h1>Module <a href="type_Ezirmin.FS_rope_string.html">Ezirmin.FS_rope_string</a></h1>
+
+<pre><span class="keyword">module</span> FS_rope_string: <code class="type"><a href="Ezirmin.Rope_string.html">Rope_string</a></code><code class="type"> </code></pre><div class="info module top">
+A string rope that uses the git filesystem backend.<br>
+</div>
+<hr width="100%">
+<br>
+<h1 id="1_Mergeablerope">Mergeable rope</h1><br>
+<br>
+<code class="code"><span class="constructor">Rope</span></code> provides an efficient mergeable data structure for storing and
+      manipulating int-indexed sequence of contents.<br>
+
+<pre><span class="keyword">include</span> Ezirmin_repo.S</pre>
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+<div class="info ">
+The type of rope.<br>
+</div>
+
+
+<pre><span id="TYPEatom"><span class="keyword">type</span> <code class="type"></code>atom</span> </pre>
+<div class="info ">
+The type of an element in the <a href="Ezirmin.Rope.html#TYPEcontent"><code class="code"><span class="constructor">Ezirmin</span>.<span class="constructor">Rope</span>.content</code></a>.<br>
+</div>
+
+
+<pre><span id="TYPEcontent"><span class="keyword">type</span> <code class="type"></code>content</span> </pre>
+<div class="info ">
+The type of rope contents.<br>
+</div>
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">unit -> <a href="Ezirmin.Rope.html#TYPEt">t</a> Lwt.t</code></pre><div class="info ">
+Create an empty rope.<br>
+</div>
+
+<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEcontent">content</a> -> <a href="Ezirmin.Rope.html#TYPEt">t</a> Lwt.t</code></pre><div class="info ">
+Make a rope from the given content.<br>
+</div>
+
+<pre><span id="VALflush"><span class="keyword">val</span> flush</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> <a href="Ezirmin.Rope.html#TYPEcontent">content</a> Lwt.t</code></pre><div class="info ">
+Flush a rope to a content representation.<br>
+</div>
+
+<pre><span id="VALis_empty"><span class="keyword">val</span> is_empty</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> bool Lwt.t</code></pre><div class="info ">
+Returns <code class="code"><span class="keyword">true</span></code> if the rope is empty.<br>
+</div>
+
+<pre><span id="VALlength"><span class="keyword">val</span> length</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> int Lwt.t</code></pre><div class="info ">
+Return the length of the rope.<br>
+</div>
+
+<pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> pos:int -> <a href="Ezirmin.Rope.html#TYPEatom">atom</a> -> <a href="Ezirmin.Rope.html#TYPEt">t</a> Lwt.t</code></pre><div class="info ">
+<code class="code">set r i v</code> returns a new rope with element at position <code class="code">i</code> updated to
+      <code class="code">v</code> in <code class="code">r</code>.<br>
+</div>
+
+<pre><span id="VALget"><span class="keyword">val</span> get</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> pos:int -> <a href="Ezirmin.Rope.html#TYPEatom">atom</a> Lwt.t</code></pre><div class="info ">
+<code class="code">get r i</code> return the element at position <code class="code">i</code> in <code class="code">r</code>.<br>
+</div>
+
+<pre><span id="VALinsert"><span class="keyword">val</span> insert</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> pos:int -> <a href="Ezirmin.Rope.html#TYPEcontent">content</a> -> <a href="Ezirmin.Rope.html#TYPEt">t</a> Lwt.t</code></pre><div class="info ">
+<code class="code">insert r i c</code> returns a new rope with content <code class="code">c</code> inserted at position
+      <code class="code">i</code> in <code class="code">r</code>.<br>
+</div>
+
+<pre><span id="VALdelete"><span class="keyword">val</span> delete</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> pos:int -> len:int -> <a href="Ezirmin.Rope.html#TYPEt">t</a> Lwt.t</code></pre><div class="info ">
+<code class="code">delete r i n</code> returns a new rope with <code class="code">n</code> elements deleted from position
+      <code class="code">i</code> in <code class="code">r</code>.<br>
+</div>
+
+<pre><span id="VALappend"><span class="keyword">val</span> append</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> <a href="Ezirmin.Rope.html#TYPEt">t</a> -> <a href="Ezirmin.Rope.html#TYPEt">t</a> Lwt.t</code></pre><div class="info ">
+<code class="code">append r r'</code> returns a new rope with <code class="code">r'</code> appended to the end of <code class="code">r</code>.<br>
+</div>
+
+<pre><span id="VALconcat"><span class="keyword">val</span> concat</span> : <code class="type">sep:<a href="Ezirmin.Rope.html#TYPEt">t</a> -> <a href="Ezirmin.Rope.html#TYPEt">t</a> list -> <a href="Ezirmin.Rope.html#TYPEt">t</a> Lwt.t</code></pre><div class="info ">
+<code class="code">concat s rl</code> returns a new rope that is a concatenation of ropes from
+      <code class="code">rl</code> separated by <code class="code">s</code>.<br>
+</div>
+
+<pre><span id="VALsplit"><span class="keyword">val</span> split</span> : <code class="type"><a href="Ezirmin.Rope.html#TYPEt">t</a> -> pos:int -> (<a href="Ezirmin.Rope.html#TYPEt">t</a> * <a href="Ezirmin.Rope.html#TYPEt">t</a>) Lwt.t</code></pre><div class="info ">
+<code class="code">split r i</code> returns a pair of new ropes obtained by splitting <code class="code">r</code> at
+      position <code class="code">i</code>.<br>
+</div>
+
+<pre><span id="VALwrite"><span class="keyword">val</span> write</span> : <code class="type">?message:string -> branch -> path:string list -> <a href="Ezirmin.Rope.html#TYPEt">t</a> -> unit Lwt.t</code></pre><div class="info ">
+<code class="code">update m b p r</code> updates the rope at path <code class="code">p</code> in branch <code class="code">b</code> to <code class="code">r</code>. The
+      commit message is <code class="code">m</code>.<br>
+</div>
+
+<pre><span id="VALread"><span class="keyword">val</span> read</span> : <code class="type">branch -> path:string list -> <a href="Ezirmin.Rope.html#TYPEt">t</a> option Lwt.t</code></pre><div class="info ">
+<code class="code">read b p</code> returns the rope at path <code class="code">p</code> in branch <code class="code">b</code>. Returns <code class="code"><span class="constructor">None</span></code> if
+      a rope does not exist at this path.<br>
+</div>
+</body></html>

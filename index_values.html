@@ -15,6 +15,16 @@
 <h1>Index of values</h1>
 <table>
 <tr><td align="left"><br>A</td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALappend">append</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+<code class="code">append c c'</code> returns a new content with <code class="code">c'</code> appended to the end of <code class="code">c</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALappend">append</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">append r r'</code> returns a new rope with <code class="code">r'</code> appended to the end of <code class="code">r</code>.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALappend">append</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
 <td><div class="info">
 <code class="code">append m b p c</code> appends the message <code class="code">m</code> to the log at path <code class="code">b</code> in the
@@ -55,12 +65,68 @@ Get the commit corresponding to the head of the branch.
         to the commit <code class="code">e</code>.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALconcat">concat</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+<code class="code">concat sep cl</code> returns a new content which concatenates the contents in
+      <code class="code">cl</code> separated by <code class="code">sep</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALconcat">concat</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">concat s rl</code> returns a new rope that is a concatenation of ropes from
+      <code class="code">rl</code> separated by <code class="code">s</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALcreate">create</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+Create an empty rope.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALcreate">create</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
 <td><div class="info">
 Create a new queue.
 </div>
 </td></tr>
+<tr><td align="left"><br>D</td></tr>
+<tr><td><a href="Ezirmin.Counter.html#VALdec">dec</a> [<a href="Ezirmin.Counter.html">Ezirmin.Counter</a>]</td>
+<td><div class="info">
+<code class="code">dec m d b p</code> decrements the counter at path <code class="code">p</code> in branch <code class="code">b</code> by <code class="code">d</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALdelete">delete</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+<code class="code">delete c i n</code> deletes <code class="code">n</code> atoms at position <code class="code">i</code> in <code class="code">c</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALdelete">delete</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">delete r i n</code> returns a new rope with <code class="code">n</code> elements deleted from position
+      <code class="code">i</code> in <code class="code">r</code>.
+</div>
+</td></tr>
+<tr><td align="left"><br>E</td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALempty">empty</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+Empty content
+</div>
+</td></tr>
+<tr><td align="left"><br>F</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALflush">flush</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+Flush a rope to a content representation.
+</div>
+</td></tr>
 <tr><td align="left"><br>G</td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALget">get</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+<code class="code">get c i</code> gets the element at position i in <code class="code">c</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALget">get</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">get r i</code> return the element at position <code class="code">i</code> in <code class="code">r</code>.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Repo.html#VALget_branch">get_branch</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 <code class="code">get_branch repo b</code> fetches the branch <code class="code">b</code> by name.
@@ -83,9 +149,25 @@ Return the cursor that points to the head of the queue.
 </div>
 </td></tr>
 <tr><td align="left"><br>I</td></tr>
+<tr><td><a href="Ezirmin.Counter.html#VALinc">inc</a> [<a href="Ezirmin.Counter.html">Ezirmin.Counter</a>]</td>
+<td><div class="info">
+<code class="code">inc m d b p</code> increments the counter at path <code class="code">p</code> in branch <code class="code">b</code> by <code class="code">d</code>.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Repo.html#VALinit">init</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 Initialize and connect to the repository in a backend specific manner.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALinsert">insert</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+<code class="code">insert c i c'</code> inserts the content <code class="code">c'</code> at position <code class="code">i</code> in <code class="code">c</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALinsert">insert</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">insert r i c</code> returns a new rope with content <code class="code">c</code> inserted at position
+      <code class="code">i</code> in <code class="code">r</code>.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Repo.html#VALinstall_listener">install_listener</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
@@ -97,6 +179,11 @@ Create a thread that actively polls for change.
 <td><div class="info">
 <code class="code">is_earlier x y</code> returns <code class="code"><span class="keyword">true</span></code> if the latest message in <code class="code">x</code> is older
       than the latest message in <code class="code">y</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALis_empty">is_empty</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+Returns <code class="code"><span class="keyword">true</span></code> if the rope is empty.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALis_empty">is_empty</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
@@ -117,12 +204,27 @@ Returns <code class="code"><span class="keyword">true</span></code> if the queue
 </div>
 </td></tr>
 <tr><td align="left"><br>L</td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALlength">length</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+Length of contents
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALlength">length</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+Return the length of the rope.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Queue.html#VALlength">length</a> [<a href="Ezirmin.Queue.html">Ezirmin.Queue</a>]</td>
 <td><div class="info">
 Return the length of the queue.
 </div>
 </td></tr>
 <tr><td align="left"><br>M</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALmake">make</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+Make a rope from the given content.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Repo.html#VALmaster">master</a> [<a href="Ezirmin.Repo.html">Ezirmin.Repo</a>]</td>
 <td><div class="info">
 <code class="code">master repo</code> fetches the master branch of the repository.
@@ -182,6 +284,11 @@ Push updates to remote.
 </div>
 </td></tr>
 <tr><td align="left"><br>R</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALread">read</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">read b p</code> returns the rope at path <code class="code">p</code> in branch <code class="code">b</code>.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Lww_register.html#VALread">read</a> [<a href="Ezirmin.Lww_register.html">Ezirmin.Lww_register</a>]</td>
 <td><div class="info">
 <code class="code">read b p</code> fetches the value of the register at path <code class="code">b</code> in the branch
@@ -192,6 +299,11 @@ Push updates to remote.
 <td><div class="info">
 <code class="code">read c n</code> reads the next <code class="code">n</code> messages in reverse chronological order at
       the cursor.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Counter.html#VALread">read</a> [<a href="Ezirmin.Counter.html">Ezirmin.Counter</a>]</td>
+<td><div class="info">
+<code class="code">read b p</code> reads the value of the counter at path <code class="code">p</code> in branch <code class="code">b</code>.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Log.html#VALread_all">read_all</a> [<a href="Ezirmin.Log.html">Ezirmin.Log</a>]</td>
@@ -209,6 +321,29 @@ Push updates to remote.
 <tr><td><a href="Ezirmin.Repo.Sync.html#VALremote_uri">remote_uri</a> [<a href="Ezirmin.Repo.Sync.html">Ezirmin.Repo.Sync</a>]</td>
 <td><div class="info">
 Return a remote for the URI string.
+</div>
+</td></tr>
+<tr><td align="left"><br>S</td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALset">set</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+<code class="code">set c i v</code> sets the element at position <code class="code">i</code> to <code class="code">v</code> in <code class="code">c</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALset">set</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">set r i v</code> returns a new rope with element at position <code class="code">i</code> updated to
+      <code class="code">v</code> in <code class="code">r</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope_content.html#VALsplit">split</a> [<a href="Ezirmin.Rope_content.html">Ezirmin.Rope_content</a>]</td>
+<td><div class="info">
+<code class="code">split c i</code> splits <code class="code">c</code> at position <code class="code">i</code> and returns a pair of contents.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALsplit">split</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">split r i</code> returns a pair of new ropes obtained by splitting <code class="code">r</code> at
+      position <code class="code">i</code>.
 </div>
 </td></tr>
 <tr><td align="left"><br>T</td></tr>
@@ -242,9 +377,19 @@ Return a list with the elements in the queue.
 <code class="code">watch b p cb</code> watches the log at the path <code class="code">p</code> in the branch <code class="code">b</code>.
 </div>
 </td></tr>
+<tr><td><a href="Ezirmin.Counter.html#VALwatch">watch</a> [<a href="Ezirmin.Counter.html">Ezirmin.Counter</a>]</td>
+<td><div class="info">
+<code class="code">watch b p cb</code> watches the counter at the path <code class="code">p</code> in the branch <code class="code">b</code>.
+</div>
+</td></tr>
 <tr><td><a href="Ezirmin.Blob_log.html#VALwatch">watch</a> [<a href="Ezirmin.Blob_log.html">Ezirmin.Blob_log</a>]</td>
 <td><div class="info">
 <code class="code">watch b p cb</code> watches the log at the path <code class="code">p</code> in the branch <code class="code">b</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ezirmin.Rope.html#VALwrite">write</a> [<a href="Ezirmin.Rope.html">Ezirmin.Rope</a>]</td>
+<td><div class="info">
+<code class="code">update m b p r</code> updates the rope at path <code class="code">p</code> in branch <code class="code">b</code> to <code class="code">r</code>.
 </div>
 </td></tr>
 <tr><td><a href="Ezirmin.Lww_register.html#VALwrite">write</a> [<a href="Ezirmin.Lww_register.html">Ezirmin.Lww_register</a>]</td>
