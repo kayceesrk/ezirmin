@@ -101,16 +101,24 @@ run @@ to_list m path;;
 
 The mergeable datatypes currently available are:
 
+* [Counter](http://kcsrk.info/ezirmin/Ezirmin.Blob_log.html): A counter with
+  increment and decrement operations.
 * [Blog_log](http://kcsrk.info/ezirmin/Ezirmin.Blob_log.html): An append-only
-  log stored as [blobs](). Append is an `O(n)` operation where `n` is the size
+  log stored as blobs. Append is an `O(n)` operation where `n` is the size
   of the log.
 * [Log](http://kcsrk.info/ezirmin/Ezirmin.Log.html): An append-only
   write-optimized log with support for paginated reads. Append is an `O(1)`
   operation
-* [Queue](http://kcsrk.info/ezirmin/Ezirmin.Queue.html): An efficient queue with
-  `O(1)` push and pop operations.
 * [Lww_register](http://kcsrk.info/ezirmin/Ezirmin.Lww_register.html):
   Last-writer-wins register.
+* [Queue](http://kcsrk.info/ezirmin/Ezirmin.Queue.html): An efficient queue with
+  `O(1)` push and pop operations.
+* [Rope](http://kcsrk.info/ezirmin/Ezirmin.Rope.html): An efficient data
+  structure for storing and manipulating int-indexed sequence of contents.
+  Requires a mergeable content implementation.
+* [Rope_string](http://kcsrk.info/ezirmin/Ezirmin.Rope_string.html): A rope
+  specialized to strings with intent-preserving merge implemented using
+  operational transformation.
 
 Since these datatypes are defined such that a merge is always possible and that
 merges in different orders converge, they are
