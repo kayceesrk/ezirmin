@@ -41,31 +41,31 @@ module Log(V: Tc.S0) = struct
   module S = Tc.List(Entry)
   include S
 
-	(* Get the timestamp of the latest entry. *)
-	let timestamp = function
-		| [] -> Ptime.epoch
-		| (timestamp, _ ) :: _ -> timestamp
+  (* Get the timestamp of the latest entry. *)
+  let timestamp = function
+    | [] -> Ptime.epoch
+    | (timestamp, _ ) :: _ -> timestamp
 
-	(* Compute the entries newer than the given timestamp. *)
-	let newer_than timestamp entries =
-		let rec aux acc = function
-			| [] -> List.rev acc
-			| (h, _) :: _ when h <= timestamp -> List.rev acc
-			| h::t -> aux (h::acc) t
-		in
-		aux [] entries
+  (* Compute the entries newer than the given timestamp. *)
+  let newer_than timestamp entries =
+    let rec aux acc = function
+      | [] -> List.rev acc
+      | (h, _) :: _ when h <= timestamp -> List.rev acc
+      | h::t -> aux (h::acc) t
+    in
+    aux [] entries
 
-	let merge_log _path ~old t1 t2 =
-		let open Irmin.Merge.OP in
-		old () >>| fun old ->
-		let old = match old with None -> [] | Some o -> o in
-		let ts = timestamp old in
-		let t1 = newer_than ts t1 in
-		let t2 = newer_than ts t2 in
-		let t3 = List.sort Entry.compare (List.rev_append t1 t2) in
-		ok (List.rev_append t3 old)
+  let merge_log _path ~old t1 t2 =
+    let open Irmin.Merge.OP in
+    old () >>| fun old ->
+    let old = match old with None -> [] | Some o -> o in
+    let ts = timestamp old in
+    let t1 = newer_than ts t1 in
+    let t2 = newer_than ts t2 in
+    let t3 = List.sort Entry.compare (List.rev_append t1 t2) in
+    ok (List.rev_append t3 old)
 
-	let merge path = Irmin.Merge.option (module S) (merge_log path)
+  let merge path = Irmin.Merge.option (module S) (merge_log path)
 end
 
 module type S = sig

@@ -236,28 +236,28 @@ module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
 
   let create_node store t_left t_right =
     let l_length = get_length t_left in
-    let	r_length = get_length t_right in
+    let r_length = get_length t_right in
     create_branch store t_left >>= fun b_left ->
     create_branch store t_right >>= fun b_right ->
     make_node l_length r_length b_left b_right
 
   let constr_node (t_left, k_left) (t_right, k_right) =
     let l_length = get_length t_left in
-    let	r_length = get_length t_right in
+    let r_length = get_length t_right in
     constr_branch t_left k_left >>= fun b_left ->
     constr_branch t_right k_right >>= fun b_right ->
     make_node l_length r_length b_left b_right
 
   let crt_cns_node store t_left (t_right, k_right) =
     let l_length = get_length t_left in
-    let	r_length = get_length t_right in
+    let r_length = get_length t_right in
     create_branch store t_left >>= fun b_left ->
     constr_branch t_right k_right >>= fun b_right ->
     make_node l_length r_length b_left b_right
 
   let cns_crt_node store (t_left, k_left) t_right =
     let l_length = get_length t_left in
-    let	r_length = get_length t_right in
+    let r_length = get_length t_right in
     constr_branch t_left k_left >>= fun b_left ->
     create_branch store t_right >>= fun b_right ->
     make_node l_length r_length b_left b_right
