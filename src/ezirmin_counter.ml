@@ -11,13 +11,13 @@ module Counter = struct
 
   include Tc.Int
 
-	let merge_ _ ~old t1 t2 =
-		let open Irmin.Merge.OP in
-		old () >>| fun old ->
-		let old = match old with None -> 0 | Some o -> o in
-		ok (t1 + t2 - old)
+  let merge_ _ ~old t1 t2 =
+    let open Irmin.Merge.OP in
+    old () >>| fun old ->
+    let old = match old with None -> 0 | Some o -> o in
+    ok (t1 + t2 - old)
 
-	let merge path = Irmin.Merge.option (module Tc.Int) (merge_ path)
+  let merge path = Irmin.Merge.option (module Tc.Int) (merge_ path)
 end
 
 module type S = sig
