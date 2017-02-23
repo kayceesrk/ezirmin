@@ -22,6 +22,8 @@ open Lwt.Infix
 
 let return = Lwt.return
 
+let r = ref (fun k v -> failwith "r")
+
 let list_dedup ?(compare=Pervasives.compare) t =
   let t = List.sort compare t in
   let rec aux acc = function
@@ -147,7 +149,10 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
     let read t k = S.read t k
     let read_exn t k = S.read_exn t k
     let read_free t k = S.read_exn t k
-    let add t v = S.add t v
+    let add t v =
+      S.add t v >>= fun k ->
+      (!r) k (Obj.magic v) >>= fun _ ->
+      return k
   end
 
   (*
@@ -559,9 +564,24 @@ end
 module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt = V.t = struct
 
   module Q = Queue(AO)(V)
+  module QC = struct
+    include Q.C
+    module Path = Q.Path
+    let merge _ = failwith "QC.merge"
+  end
 
   module Repo = Ezirmin_repo.Make(S)(Q)
+  module RepoQC = Ezirmin_repo.Make(S)(QC)
+
   include Repo
+
+  let init ?root ?bare () =
+    RepoQC.init ?root ?bare () >>= fun repo ->
+    RepoQC.get_branch repo "internal"  >>= fun ib ->
+    r := (fun k v ->
+      let fname = String.sub (Irmin.Hash.SHA1.to_hum k) 0 7 in
+      RepoQC.Store.update (ib "add") [fname] (Obj.magic v));
+    init ?root ?bare ()
 
   type elt = V.t
 
