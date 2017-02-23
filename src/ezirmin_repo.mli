@@ -25,7 +25,7 @@ module type S = sig
   val install_listener : unit -> unit
 
   module Sync : sig
-    type remote
+    type remote = Irmin.remote
     val remote_uri : string -> remote
     val pull : remote -> branch -> [`Merge | `Update]
             -> [`Conflict of string | `Ok | `Error | `No_head ] Lwt.t

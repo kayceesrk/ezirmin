@@ -644,4 +644,5 @@ module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt
 
   let watch branch ~path callback =
     Store.watch_key (branch "watch") (path @ [head_name]) (fun _ -> callback ())
+
 end

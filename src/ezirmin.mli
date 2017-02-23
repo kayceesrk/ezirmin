@@ -93,7 +93,7 @@ module type Repo = sig
   (** [Sync] provides functionality to sync with remote repositories. *)
 
   module Sync : sig
-    type remote
+    type remote = Irmin.remote
     (** The type of remote. *)
 
     val remote_uri : string -> remote
