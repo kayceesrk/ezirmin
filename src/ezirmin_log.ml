@@ -160,16 +160,12 @@ module Make(AOM : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V:Tc.S0) : S with type elt
 
   let head_name = "head"
 
-  let append ?message t ~path e =
-    let msg = match message with
-    | None -> "update"
-    | Some m -> m
-    in
+  let append ?(message="update") t ~path e =
     let head = path @ [head_name] in
     Store.read (t "read") head >>= fun prev ->
     L.append ?prev e >>= fun v ->
     Lwt_log.debug_f "append.None" >>= fun () ->
-    Store.update (t msg) head v
+    Store.update (t message) head v
 
   let get_cursor branch ~path =
     let mk_cursor k cache = Lwt.return @@ Some {seen = HashSet.singleton k; cache; branch} in
