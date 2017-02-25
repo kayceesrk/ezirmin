@@ -143,7 +143,11 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
   module Store = struct
     module S = AO(K)(C)
     include S
-    let create () = create @@ Irmin_git.config ()
+    let config = ref None
+    let create () =
+      match !config with
+      | None -> failwith "Queue.Store.create"
+      | Some c -> create c
     let read t k = S.read t k
     let read_exn t k = S.read_exn t k
     let read_free t k = S.read_exn t k
@@ -562,6 +566,12 @@ module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt
 
   module Repo = Ezirmin_repo.Make(S)(Q)
   include Repo
+
+  let init ?root ?bare () =
+    let module C = Irmin.Private.Conf in
+    let config = C.add C.empty C.root root in
+    Q.Store.config := Some config;
+    init ?root ?bare ()
 
   type elt = V.t
 
