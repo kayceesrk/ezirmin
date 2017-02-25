@@ -22,8 +22,6 @@ open Lwt.Infix
 
 let return = Lwt.return
 
-let r = ref (fun k v -> failwith "r")
-
 let list_dedup ?(compare=Pervasives.compare) t =
   let t = List.sort compare t in
   let rec aux acc = function
@@ -41,7 +39,7 @@ exception Empty
 type error = [ `Corrupted | `Invalid_access ]
 exception Error of error
 
-module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
+module Queue(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) = struct
 
   module Path = Irmin.Path.String_list
   module K = Irmin.Hash.SHA1
@@ -139,10 +137,19 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
     let size_of t =
       let str = to_string t in
       String.length str
-
   end
 
-  module Store = struct
+  module CM = struct
+    include C
+    module Path = Irmin.Path.String_list
+    let merge _ = failwith "merge Queue.C"
+  end
+
+  module AORepo = Ezirmin_repo.Make(S)(CM)
+
+  let updater = ref (fun k v -> failwith "r")
+
+  module AOStore = struct
     module S = AO(K)(C)
     include S
     let create () = create @@ Irmin_git.config ()
@@ -151,7 +158,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
     let read_free t k = S.read_exn t k
     let add t v =
       S.add t v >>= fun k ->
-      (!r) k (Obj.magic v) >>= fun _ ->
+      (!updater) k v >>= fun _ ->
       return k
   end
 
@@ -187,8 +194,8 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
    * 'top' and 'bottom' are pointed on the 'empty' node.
   *)
   let create () =
-    Store.create () >>= fun store ->
-    Store.add store (C.Node empty) >>= fun root ->
+    AOStore.create () >>= fun store ->
+    AOStore.add store (C.Node empty) >>= fun root ->
     let index = {
       C.push = 0;
       C.pop = 0;
@@ -210,7 +217,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
    * 'normalise' flush the push list into the pop one.
   *)
   let normalize q =
-    Store.create () >>= fun store ->
+    AOStore.create () >>= fun store ->
     let index = q.index in
     let root = q.root in
 
@@ -231,7 +238,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
            k queue k_old_node k_new_node
          )
        | Some old_next -> (
-           Store.read_exn store old_next >>= fun old_next ->
+           AOStore.read_exn store old_next >>= fun old_next ->
            match old_next with
            | C.Index _
            | C.Elt _ -> Lwt.fail (Error `Corrupted)
@@ -241,7 +248,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
       match old_node.C.elt with
       | None -> return new_next
       | Some elt -> (
-          Store.add store (C.Node new_next) >>= fun new_key_node ->
+          AOStore.add store (C.Node new_next) >>= fun new_key_node ->
           let new_node = {
             C.next = Some new_key_node;
             C.previous = None;
@@ -259,12 +266,12 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
 
       match old_node.C.branch with
       | Some index -> (
-          Store.read_exn store index.C.top >>= fun branch_top ->
+          AOStore.read_exn store index.C.top >>= fun branch_top ->
           match branch_top with
           | C.Index _
           | C.Elt _ -> Lwt.fail (Error `Corrupted)
           | C.Node branch_top ->
-            Store.read_exn store index.C.bottom >>= fun branch_bottom ->
+            AOStore.read_exn store index.C.bottom >>= fun branch_bottom ->
             match branch_bottom with
             | C.Index _
             | C.Elt _ ->  Lwt.fail (Error `Corrupted)
@@ -276,7 +283,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
               match old_node.C.previous with
               | None -> return new_node
               | Some old_previous -> (
-                  Store.read_exn store old_previous >>= fun old_previous ->
+                  AOStore.read_exn store old_previous >>= fun old_previous ->
                   match old_previous with
                   | C.Index _
                   | C.Elt _ -> Lwt.fail (Error `Corrupted)
@@ -290,12 +297,12 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
               return new_node;
             )
           | Some old_previous -> (
-              Store.read_exn store old_previous >>= fun old_previous ->
+              AOStore.read_exn store old_previous >>= fun old_previous ->
               match old_previous with
               | C.Index _
               | C.Elt _ -> Lwt.fail (Error `Corrupted)
               | C.Node old_previous -> (
-                  Store.add store (C.Node new_node) >>= fun key_node ->
+                  AOStore.add store (C.Node new_node) >>= fun key_node ->
                   let new_previous = {
                     C.next = Some key_node;
                     C.previous = None;
@@ -307,18 +314,18 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
         )
     in
 
-    Store.read_exn store index.C.top >>= fun top_node ->
+    AOStore.read_exn store index.C.top >>= fun top_node ->
     match top_node with
     | C.Index _
     | C.Elt _ -> Lwt.fail (Error `Corrupted)
     | C.Node top_node ->
-      Store.read_exn store index.C.bottom >>= fun bottom_node ->
+      AOStore.read_exn store index.C.bottom >>= fun bottom_node ->
       match bottom_node with
       | C.Index _
       | C.Elt _ -> Lwt.fail (Error `Corrupted)
       | C.Node bottom_node ->
         apply from_top from_bottom q top_node bottom_node empty >>= fun node ->
-        Store.add store (C.Node node) >>= fun key_top ->
+        AOStore.add store (C.Node node) >>= fun key_top ->
         let index = {
           C.push = index.C.push;
           C.pop = index.C.pop;
@@ -333,18 +340,18 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
   *)
   let push q elt =
 
-    Store.create () >>= fun store ->
+    AOStore.create () >>= fun store ->
     let index = q.index in
     let root = q.root in
 
-    Store.add store (C.Elt elt) >>= fun key_elt ->
+    AOStore.add store (C.Elt elt) >>= fun key_elt ->
     let node = {
       C.next = None;
       C.previous = Some index.C.bottom;
       C.elt = Some key_elt;
       C.branch = None;
     } in
-    Store.add store (C.Node node) >>= fun key_node ->
+    AOStore.add store (C.Node node) >>= fun key_node ->
     let index = {
       C.push = index.C.push + 1;
       C.pop = index.C.pop;
@@ -355,7 +362,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
 
   let push_branch q branch =
 
-    Store.create () >>= fun store ->
+    AOStore.create () >>= fun store ->
     let index = q.index in
     let root = q.root in
 
@@ -365,7 +372,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
       C.elt = None;
       C.branch = Some branch;
     } in
-    Store.add store (C.Node node) >>= fun key_node ->
+    AOStore.add store (C.Node node) >>= fun key_node ->
     let index = {
       C.push = index.C.push;
       C.pop = index.C.pop;
@@ -381,14 +388,14 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
   *)
   let rec pop q =
 
-    Store.create () >>= fun store ->
+    AOStore.create () >>= fun store ->
     let index = q.index in
     let root = q.root in
 
     if index.C.push = index.C.pop then
       return None
     else
-      Store.read_exn store  index.C.top >>= fun node ->
+      AOStore.read_exn store  index.C.top >>= fun node ->
       match node with
       | C.Index _
       | C.Elt _ -> Lwt.fail (Error `Corrupted)
@@ -396,7 +403,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
         match node.C.elt with
         | None -> normalize q >>= fun q -> pop q
         | Some elt ->
-          Store.read_exn store elt >>= fun elt ->
+          AOStore.read_exn store elt >>= fun elt ->
           match elt with
           | C.Index _
           | C.Node _ -> Lwt.fail (Error `Corrupted)
@@ -420,14 +427,14 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
   *)
   let rec pop_exn q =
 
-    Store.create () >>= fun store ->
+    AOStore.create () >>= fun store ->
     let index = q.index in
     let root = q.root in
 
     if index.C.push = index.C.pop then
       Lwt.fail Empty
     else
-      Store.read_exn store index.C.top >>= fun node ->
+      AOStore.read_exn store index.C.top >>= fun node ->
       match node with
       | C.Index _
       | C.Elt _ -> Lwt.fail (Error `Corrupted)
@@ -435,7 +442,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
         match node.C.elt with
         | None -> normalize q >>= fun q -> pop_exn q
         | Some elt ->
-          Store.read_exn store elt >>= fun elt ->
+          AOStore.read_exn store elt >>= fun elt ->
           match elt with
           | C.Index _
           | C.Node _ -> Lwt.fail (Error `Corrupted)
@@ -505,7 +512,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
   *)
   let list q list =
 
-    Store.create () >>= fun store ->
+    AOStore.create () >>= fun store ->
 
     let add list = function
       | None -> list
@@ -515,7 +522,7 @@ module Queue(AO : Irmin.AO_MAKER)(V : Tc.S0) = struct
     let rec iter tmp_list res_list = match tmp_list with
       | [] -> return res_list
       | key :: tmp_list ->
-        Store.read_exn store key >>= fun value ->
+        AOStore.read_exn store key >>= fun value ->
         match value with
         | C.Elt _       -> Lwt.fail (Error `Invalid_access)
         | C.Index index -> iter
@@ -563,24 +570,17 @@ end
 
 module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt = V.t = struct
 
-  module Q = Queue(AO)(V)
-  module QC = struct
-    include Q.C
-    module Path = Q.Path
-    let merge _ = failwith "QC.merge"
-  end
+  module Q = Queue(AO)(S)(V)
 
   module Repo = Ezirmin_repo.Make(S)(Q)
-  module RepoQC = Ezirmin_repo.Make(S)(QC)
-
   include Repo
 
   let init ?root ?bare () =
-    RepoQC.init ?root ?bare () >>= fun repo ->
-    RepoQC.get_branch repo "internal"  >>= fun ib ->
-    r := (fun k v ->
+    Q.AORepo.init ?root ?bare () >>= fun repo ->
+    Q.AORepo.get_branch repo "internal" >>= fun ib ->
+    Q.updater := (fun k v ->
       let fname = String.sub (Irmin.Hash.SHA1.to_hum k) 0 7 in
-      RepoQC.Store.update (ib "add") [fname] (Obj.magic v));
+      Q.AORepo.Store.update (ib ("add " ^ fname)) [fname] v);
     init ?root ?bare ()
 
   type elt = V.t

@@ -2,8 +2,11 @@ open Irmin_unix
 open Lwt.Infix
 
 module type S = sig
+
+  module Store : Irmin.S
+
   type repo
-  type branch
+  type branch = string -> Store.t
 
   val init : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
   val master : repo -> branch Lwt.t
@@ -30,13 +33,10 @@ module type S = sig
     val pull : remote -> branch -> [`Merge | `Update] -> [`Conflict of string | `Ok | `Error | `No_head ] Lwt.t
     val push : remote -> branch -> [`Ok | `Error] Lwt.t
   end
-
-  module Store : Irmin.S
 end
 
 module Make(Backend : Irmin.S_MAKER)(C : Irmin.Contents.S) : sig
-  include S with type branch = string -> Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1).t
-             and module Store = Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)
+  include S with module Store = Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)
 end = struct
 
   module Store = Backend(C)(Irmin.Ref.String)(Irmin.Hash.SHA1)

@@ -16,10 +16,14 @@ module type Repo = sig
 
   (** [Repo] provides operations on repositories. *)
 
+
+  module Store : Irmin.S
+  (** Underlying Irmin store. *)
+
   type repo
   (** The type of repository handles. A repository contains a set of branches. *)
 
-  type branch
+  type branch = string -> Store.t
   (** The type of persistent branches. *)
 
   val init : ?root:string -> ?bare:bool -> unit -> repo Lwt.t
@@ -105,9 +109,6 @@ module type Repo = sig
     val push : remote -> branch -> [`Ok | `Error] Lwt.t
     (** Push updates to remote. *)
   end
-
-  module Store : Irmin.S
-  (** Underlying Irmin store. *)
 end
 
 (** {2 Mergeable datastructures} *)
