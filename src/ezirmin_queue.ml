@@ -142,7 +142,7 @@ module Queue(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) = struct
   module CM = struct
     include C
     module Path = Irmin.Path.String_list
-    let merge _ = failwith "merge Queue.C"
+    let merge _ = failwith "merge Queue.CM"
   end
 
   module AORepo = Ezirmin_repo.Make(S)(CM)

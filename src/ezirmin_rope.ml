@@ -38,7 +38,7 @@ module type Content = sig
   val split : t -> int -> (t * t)
 end
 
-module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
+module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
 
   module Path = V.Path
   module K = Irmin.Hash.SHA1
@@ -145,6 +145,16 @@ module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
       String.length str
   end
 
+  module CM = struct
+    include C
+    module Path = Irmin.Path.String_list
+    let merge _ = failwith "merge Rope.CM"
+  end
+
+  module AORepo = Ezirmin_repo.Make(S)(CM)
+
+  let updater = ref (fun k v -> failwith "r")
+
   module Store_ = struct
 
     (*
@@ -171,7 +181,11 @@ module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
     module S = AO(K)(C)
     include S
 
-    let create () = create @@ Irmin_git.config ()
+    let config = ref None
+    let create () =
+      match !config with
+      | None -> failwith "Rope.S.create"
+      | Some c -> create c
 
     let read t k =
       S.read t k
@@ -183,7 +197,9 @@ module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
       S.read_exn t k
 
     let add t v =
-      S.add t v
+      S.add t v >>= fun k ->
+      (!updater) k v >>= fun _ ->
+      return k
 
   end
 
@@ -893,11 +909,23 @@ end
 module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) : S
   with type atom = V.atom and type content = V.t = struct
 
-  module R = Rope(AO)(V)
+  module R = Rope(AO)(S)(V)
   include R
 
   module Repo = Ezirmin_repo.Make(S)(R)
   include Repo
+
+  let init ?root ?bare () =
+    R.AORepo.init ?root ?bare () >>= fun repo ->
+    R.AORepo.get_branch repo "internal" >>= fun ib ->
+    R.updater := (fun k v ->
+      let fname = String.sub (Irmin.Hash.SHA1.to_hum k) 0 7 in
+      R.AORepo.Store.update (ib ("add " ^ fname)) [fname] v);
+    let module C = Irmin.Private.Conf in
+    let config = C.add C.empty C.root root in
+    R.Store_.config := Some config;
+    init ?root ?bare ()
+
 
   let head_name = "head"
 
