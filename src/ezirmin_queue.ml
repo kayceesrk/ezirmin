@@ -587,7 +587,7 @@ module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt
       Q.AORepo.Store.update (ib ("add " ^ fname)) [fname] v);
     let module C = Irmin.Private.Conf in
     let config = C.add C.empty C.root root in
-    Q.Store.config := Some config;
+    Q.AOStore.config := Some config;
     init ?root ?bare ()
 
   type elt = V.t
