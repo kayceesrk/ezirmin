@@ -901,13 +901,9 @@ module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) : S
 
   let head_name = "head"
 
-  let write ?message t ~path v =
-    let msg = match message with
-    | None -> "write"
-    | Some m -> m
-    in
+  let write ?(message="write") t ~path v =
     let head = path @ [head_name] in
-    Store.update (t msg) head v
+    Store.update (t message) head v
 
   let read t ~path =
     let head = path @ [head_name] in

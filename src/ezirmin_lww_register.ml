@@ -93,13 +93,9 @@ module Make(Backend : Irmin.S_MAKER)(V:Tc.S0) : S with type value = V.t = struct
     | None -> return None
     | Some v -> return @@ Some (R.get_contents v)
 
-  let write ?message t ~path v =
-    let msg = match message with
-    | None -> "write"
-    | Some m -> m
-    in
+  let write ?(message="write") t ~path v =
     let head = path @ [head_name] in
-    Store.update (t msg) head (R.mk_value v)
+    Store.update (t message) head (R.mk_value v)
 
   let watch branch ~path callback =
     let open R in

@@ -35,19 +35,11 @@ module Make(Backend : Irmin.S_MAKER) : S = struct
 
   let head_name = "head"
 
-  let modify ?message ?by t ~path tx =
-    let msg = match message with
-    | None -> "update"
-    | Some m -> m
-    in
-    let by = match by with
-    | None -> 1
-    | Some v -> v
-    in
+  let modify ?(message="update") ?(by=1) t ~path tx =
     let head = path @ [head_name] in
     Store.read (t "read") head >>= function
-    | None -> Store.update (t msg) head (tx by)
-    | Some v -> Store.update (t msg) head (tx by + v)
+    | None -> Store.update (t message) head (tx by)
+    | Some v -> Store.update (t message) head (tx by + v)
 
   let inc ?message ?by t ~path = modify ?message ?by t ~path (fun x -> x)
   let dec ?message ?by t ~path = modify ?message ?by t ~path (fun x -> -x)
