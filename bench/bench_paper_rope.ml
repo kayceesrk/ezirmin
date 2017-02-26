@@ -77,7 +77,30 @@ let perform_op r =
     let pos = if l - pos < edit_length then pos - edit_length else pos in
     delete r pos edit_length
 
+(* Commandline arguments *)
+let _ =
+  if Array.length Sys.argv < 3 then
+    (Printf.printf "Usage: %s <num_ops> <sync_every> <remotes>\n" Sys.argv.(0);
+     exit(1))
+
 let num_ops = int_of_string @@ Sys.argv.(1)
+let sync_every = int_of_string @@ Sys.argv.(2)
+let remotes_str =
+  if Array.length Sys.argv > 4 then
+    Stringext.full_split Sys.argv.(3) ','
+  else []
+
+let remotes = List.map (fun r -> Sync.remote_uri ("git+ssh://kc@" ^ r ^ "/tmp/ezirminr")) remotes_str
+
+let sync_all () =
+  let rec loop = function
+    | [] -> Lwt.return ()
+    | x::xs ->
+        Sync.pull x ib `Merge >>= fun _ ->
+        Sync.pull x mb `Merge >>= fun _ ->
+        loop xs
+  in
+  loop remotes
 
 let rec edit r = function
   | 0 -> Lwt.return r
@@ -94,5 +117,18 @@ let rec edit r = function
         perform_op r >>= fun r ->
         edit r (n-1)
 
-let l = Lwt_main.run (edit r num_ops >>= length)
+let rec daemon () =
+  sync_all () >>= fun () ->
+  Lwt_unix.sleep 1.0 >>=
+  daemon
+
+let main () =
+  ignore (read_line ());
+  let t = Unix.gettimeofday () in
+  Lwt.async daemon;
+  edit r num_ops >>= fun r ->
+  Printf.printf "runtime: %f sec\n" (Unix.gettimeofday () -. t);
+  length r
+
+let l = Lwt_main.run (main ())
 let _ = Printf.printf "Final length=%d" l

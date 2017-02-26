@@ -16,4 +16,4 @@ true : bin_annot, safe_string, package(bytes), debug
 	package(lwt), package(irmin), package(ptime), package(ptime.clock.os), \
 	package(git.unix), package(irmin.unix)
 
-<bench/bench*> : package(lwt.unix), package(irmin.unix), package(ptime.clock.os)
+<bench/bench*> : package(lwt.unix), package(irmin.unix), package(ptime.clock.os), package(stringext)
