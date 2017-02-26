@@ -86,11 +86,11 @@ let sync_every = int_of_string @@ Sys.argv.(2)
 let is_first = bool_of_string @@ Sys.argv.(3)
 let remotes_str =
   if Array.length Sys.argv > 4 then begin
-    Printf.printf "%s\n%!" (Sys.argv.(4));
     Stringext.full_split Sys.argv.(4) ','
   end else []
 
 let remotes = List.map (fun r -> Sync.remote_uri ("git+ssh://kc@" ^ r ^ "/tmp/ezirminr")) remotes_str
+let _ = Printf.printf "Num remotes=%d\n" (List.length remotes)
 
 let sync_all () =
   let rec loop = function
@@ -123,8 +123,8 @@ let rec edit r = function
         edit r (n-1)
 
 let rec daemon () =
-  Lwt_unix.sleep 1.0 >>=
-  sync_all >>=
+  Lwt_unix.sleep 1.0 >>= fun () ->
+  sync_all () >>=
   daemon
 
 let main () =
