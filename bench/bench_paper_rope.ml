@@ -49,8 +49,6 @@ let ib = Lwt_main.run (get_branch repo "internal")
 let push r b = Sync.push r ib >>= fun _ -> Sync.push r b
 let pull r b k = Sync.pull r ib k >>= fun _ -> Sync.pull r b k
 
-let r = Lwt_main.run (make s)
-
 let _ = Random.self_init ()
 
 let gen_string length =
@@ -79,16 +77,17 @@ let perform_op r =
 
 (* Commandline arguments *)
 let _ =
-  if Array.length Sys.argv < 3 then
-    (Printf.printf "Usage: %s <num_ops> <sync_every> <remotes>\n" Sys.argv.(0);
+  if Array.length Sys.argv < 4 then
+    (Printf.printf "Usage: %s <num_ops : int> <sync_every : int> <first : bool> <remotes : comma-separated string list>\n" Sys.argv.(0);
      exit(1))
 
 let num_ops = int_of_string @@ Sys.argv.(1)
 let sync_every = int_of_string @@ Sys.argv.(2)
+let is_first = bool_of_string @@ Sys.argv.(3)
 let remotes_str =
-  if Array.length Sys.argv > 3 then begin
-    Printf.printf "%s\n%!" (Sys.argv.(3));
-    Stringext.full_split Sys.argv.(3) ','
+  if Array.length Sys.argv > 4 then begin
+    Printf.printf "%s\n%!" (Sys.argv.(4));
+    Stringext.full_split Sys.argv.(4) ','
   end else []
 
 let remotes = List.map (fun r -> Sync.remote_uri ("git+ssh://kc@" ^ r ^ "/tmp/ezirminr")) remotes_str
@@ -129,6 +128,17 @@ let rec daemon () =
   daemon
 
 let main () =
+  if is_first then
+    make s >>= fun r ->
+    write mb [] r >>= fun _ ->
+    Lwt.return r
+  else begin
+    pull (List.hd remotes) mb `Merge >|= fun res ->
+    assert (res = `Ok);
+    read mb [] >>= function
+    | None -> failwith "Bench_rope: first read failed"
+    | Some r -> Lwt.return r
+  end >>= fun r ->
   ignore (read_line ());
   let t = Unix.gettimeofday () in
   Lwt.async daemon;
