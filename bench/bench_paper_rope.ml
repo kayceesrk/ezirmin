@@ -46,8 +46,12 @@ let repo = Lwt_main.run (init ~root:"/tmp/ezirminr" ~bare:true ())
 let mb = Lwt_main.run (master repo)
 let ib = Lwt_main.run (get_branch repo "internal")
 
-let push r b = Sync.push r ib >>= fun _ -> Sync.push r b
-let pull r b k = Sync.pull r ib k >>= fun _ -> Sync.pull r b k
+let ignore_lwt t = t >|= fun _ -> ()
+
+let push r b = Lwt.join [ignore_lwt @@ Sync.push r ib;
+                         ignore_lwt @@ Sync.push r b]
+let pull r b k = Lwt.join [ignore_lwt @@ Sync.pull r ib k;
+                           ignore_lwt @@ Sync.pull r b k]
 
 let _ = Random.self_init ()
 
@@ -110,7 +114,7 @@ let rec edit r = function
         let p = int_of_float (100.0 *. float_of_int (num_ops - n) /. float_of_int num_ops) in
         Printf.printf "Completed=%d%%\n%!" p;
         write mb [] r
-      end else 
+      end else
 	Lwt.return ()) >>= fun () ->
       (if n mod sync_every = 0 then sync_all () else Lwt.return ()) >>= fun () ->
       length r >>= fun l ->
@@ -133,12 +137,11 @@ let main () =
     Printf.printf "Committed init write\n";
     Lwt.return r
   else begin
-    pull (List.hd remotes) mb `Merge >>= fun res ->
-    assert (res = `Ok);
+    pull (List.hd remotes) mb `Merge >>= fun _ ->
     read mb [] >>= function
     | None -> failwith "Bench_rope: first read failed"
-    | Some r -> 
-        Printf.printf "Read init write\n"; 
+    | Some r ->
+        Printf.printf "Read init write\n";
         Lwt.return r
   end) >>= fun r ->
   ignore (read_line ());
