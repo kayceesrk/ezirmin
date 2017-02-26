@@ -131,13 +131,16 @@ let main () =
   (if is_first then
     make s >>= fun r ->
     write mb [] r >>= fun _ ->
+    Printf.printf "Committed init write\n";
     Lwt.return r
   else begin
     pull (List.hd remotes) mb `Merge >>= fun res ->
     assert (res = `Ok);
     read mb [] >>= function
     | None -> failwith "Bench_rope: first read failed"
-    | Some r -> Lwt.return r
+    | Some r -> 
+        Printf.printf "Read init write\n"; 
+        Lwt.return r
   end) >>= fun r ->
   ignore (read_line ());
   let t = Unix.gettimeofday () in
