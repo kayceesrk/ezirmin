@@ -86,9 +86,10 @@ let _ =
 let num_ops = int_of_string @@ Sys.argv.(1)
 let sync_every = int_of_string @@ Sys.argv.(2)
 let remotes_str =
-  if Array.length Sys.argv > 4 then
+  if Array.length Sys.argv > 3 then begin
+    Printf.printf "%s\n%!" (Sys.argv.(3));
     Stringext.full_split Sys.argv.(3) ','
-  else []
+  end else []
 
 let remotes = List.map (fun r -> Sync.remote_uri ("git+ssh://kc@" ^ r ^ "/tmp/ezirminr")) remotes_str
 
@@ -96,8 +97,9 @@ let sync_all () =
   let rec loop = function
     | [] -> Lwt.return ()
     | x::xs ->
-        Sync.pull x ib `Merge >>= fun _ ->
-        Sync.pull x mb `Merge >>= fun _ ->
+        Printf.printf "Starting sync..\n%!";
+        pull x mb `Merge >>= fun _ ->
+        Printf.printf "Sync\n%!";
         loop xs
   in
   loop remotes
@@ -105,10 +107,14 @@ let sync_all () =
 let rec edit r = function
   | 0 -> Lwt.return r
   | n ->
+      begin
       if n mod 10 = 0 then begin
         let p = int_of_float (100.0 *. float_of_int (num_ops - n) /. float_of_int num_ops) in
-        Printf.printf "Completed=%d%%\n%!" p
-      end;
+        Printf.printf "Completed=%d%%\n%!" p;
+        write mb [] r
+      end else 
+        Lwt.return ()
+      end >>= fun () ->
       length r >>= fun l ->
       if l > 10000 then begin
         delete r 0 1000 >>= fun r ->
@@ -118,8 +124,8 @@ let rec edit r = function
         edit r (n-1)
 
 let rec daemon () =
-  sync_all () >>= fun () ->
-  Lwt_unix.sleep 1.0 >>=
+  Lwt_unix.sleep 1.0 >>= 
+  sync_all >>=
   daemon
 
 let main () =
