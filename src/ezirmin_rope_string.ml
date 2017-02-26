@@ -183,11 +183,9 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
         let s' = insert s pos (String.make 1 c) in
         apply s' tl
     | Rep(pos,x,x')::tl ->
-        assert (get s pos = x);
         let s' = set s pos x' in
         apply s' tl
     | Del(pos,x)::tl ->
-        assert (get s pos = x);
         let s' = delete s pos 1 in
         apply s' tl
 
