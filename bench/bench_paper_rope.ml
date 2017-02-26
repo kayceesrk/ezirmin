@@ -148,6 +148,7 @@ let main () =
   let t = Unix.gettimeofday () in
   (* Lwt.async daemon; *)
   edit r num_ops >>= fun r ->
+  write mb [] r >>= fun _ ->
   Printf.printf "runtime: %f sec\n" (Unix.gettimeofday () -. t);
   length r
 
