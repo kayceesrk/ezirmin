@@ -146,10 +146,15 @@ let main () =
   end) >>= fun r ->
   ignore (read_line ());
   let t = Unix.gettimeofday () in
-  Lwt.async daemon;
+  (* Lwt.async daemon; *)
   edit r num_ops >>= fun r ->
   Printf.printf "runtime: %f sec\n" (Unix.gettimeofday () -. t);
   length r
 
 let l = Lwt_main.run (main ())
-let _ = Printf.printf "Final length=%d" l
+let _ = Printf.printf "Final length=%d\n" l
+let _ = Lwt_main.run (
+  let t = Unix.gettimeofday () in
+  pull (List.hd remotes) mb `Merge >|= fun _ ->
+  Printf.printf "sync time: %f sec\n" (Unix.gettimeofday () -. t)
+)

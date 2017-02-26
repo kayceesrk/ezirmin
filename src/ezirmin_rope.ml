@@ -845,6 +845,7 @@ module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
     in
 
     let merge_rope path ~old r1 r2 =
+      let start = Unix.gettimeofday () in
       old () >>= function (* FIXME *)
       | `Conflict _ | `Ok None -> conflict "merge"
       | `Ok (Some old) ->
@@ -857,10 +858,13 @@ module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
       | `Conflict _ -> conflict "merge"
       | `Ok t ->
         create_index store t >>= fun index ->
-        ok index
+        ok index >|= fun res ->
+        Printf.printf "merge time: %f sec\n%!" (Unix.gettimeofday () -. start);
+        res
     in
 
-    fun path -> Irmin.Merge.option (module T) (merge_rope path)
+    fun path -> Irmin.Merge.option (module T) (merge_rope path) 
+        
 
 
   let create = create

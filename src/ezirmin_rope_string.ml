@@ -34,7 +34,9 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
   let get = String.get
 
   let insert t i s =
-    assert (0 <= i && i <= String.length t);
+    let i = if (0 <= i && i <= String.length t) then i
+	    else Random.int (String.length t)
+    in
     let left = String.sub t 0 i in
     let right = String.sub t i (String.length t - i) in
     String.concat "" [left; s; right]
@@ -198,6 +200,9 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
           let _,p = diff old r1 in
           let _,q = diff old r2 in
           let _,q' = transform p q in
+          let _ = Printf.printf "string.merge: old=%d x=%d y=%d\n" 
+                    (String.length old) (String.length r1) (String.length r2)
+          in
           let news = apply (apply old p) q' in
           ok news
     in
