@@ -536,7 +536,9 @@ module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
       | Leaf leaf ->
         let leaf = V.insert leaf i cont in
         let l_length = V.length leaf in
-        if (l_length < 2 * depth) then return (Leaf leaf)
+        if (l_length < 2 * depth) then 
+          (Printf.printf "insert_rec: return Leaf\n%!";
+	  return (Leaf leaf))
         else
           make_internal store ~depth leaf
       | Node node ->
@@ -784,13 +786,8 @@ module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
 
     let merge_branch store old1 old2 ((b11, l11), (b12, l12)) ((b21, l21), (b22, l22)) =
       if (b11.key = b21.key) then (Some (b11, l11))
-      else if (b12.key = b22.key) then (
-        if (old1.key = b11.key) then (Some (b21, l21))
-        else if (old1.key = b21.key) then (Some (b11, l11))
-        else None
-      )
-      else if (b12.key = old2.key && b21.key = old1.key) then (Some (b11, l11))
-      else if (b11.key = old1.key && b22.key = old2.key) then (Some (b21, l21))
+      else if (old1.key = b11.key) then (Some (b21, l21))
+      else if (old1.key = b21.key) then (Some (b11, l11))
       else None
     in
 
@@ -802,8 +799,26 @@ module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
       let l_opt = merge_branch store old.left old.right (ln1, rn1) (ln2, rn2) in
       let r_opt = merge_branch store old.right old.left (rn1, ln1) (rn2, ln2) in
       match (l_opt, r_opt) with
-      | None, None -> merge_flush store path (Node old) (Node n1) (Node n2)
+      | None, None -> (
+	  Printf.printf "merge_node: None, None\n%!";
+          Store_.read_exn store old.left.key >>= fun oldt ->
+          Store_.read_exn store n1.left.key >>= fun t1 ->
+          Store_.read_exn store n2.left.key >>= fun t2 ->
+          merge_elt store path oldt t1 t2 >>= fun res ->
+          match res with
+          | `Conflict _ -> conflict "merge"
+          | `Ok t_left ->
+          (Store_.read_exn store old.right.key >>= fun oldt ->
+          Store_.read_exn store n1.right.key >>= fun t1 ->
+          Store_.read_exn store n2.right.key >>= fun t2 ->
+          merge_elt store path oldt t1 t2 >>= fun res ->
+          match res with
+          | `Conflict _ -> conflict "merge"
+          | `Ok t_right ->
+	    create_node store t_left t_right >>= fun node ->
+            ok (Node node)))
       | None, Some (br, lr) -> (
+	  Printf.printf "merge_node: None, Some\n%!";
           Store_.read_exn store br.key >>= fun t_right ->
           Store_.read_exn store old.left.key >>= fun old ->
           Store_.read_exn store n1.left.key >>= fun t1 ->
@@ -816,6 +831,7 @@ module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
             ok (Node node)
         )
       | Some (bl, ll), None -> (
+	  Printf.printf "merge_node: Some, None\n%!";
           Store_.read_exn store bl.key >>= fun t_left ->
           Store_.read_exn store old.right.key >>= fun old ->
           Store_.read_exn store n1.right.key >>= fun t1 ->
@@ -828,6 +844,7 @@ module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
             ok (Node node)
         )
       | Some (bl, ll), Some (br, lr) ->
+	Printf.printf "merge_node: Some, Some\n%!";
         make_node ll lr bl br >>= fun node ->
         ok (Node node)
 
@@ -840,8 +857,12 @@ module Rope(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) = struct
       | Node node1, Node node2 ->
         match old with
         | Index _ -> assert false
-        | Leaf _ -> merge_flush store path old t1 t2
-        | Node old -> merge_node store path old node1 node2
+        | Leaf _ -> 
+            Printf.printf "merge_elt: old.Leaf\n%!";
+            merge_flush store path old t1 t2
+        | Node old -> 
+            Printf.printf "merge_elt: old.Node\n%!";
+            merge_node store path old node1 node2
     in
 
     let merge_rope path ~old r1 r2 =
