@@ -86,11 +86,11 @@ let sync_every = int_of_string @@ Sys.argv.(2)
 let is_first = bool_of_string @@ Sys.argv.(3)
 let remotes_str =
   if Array.length Sys.argv > 4 then begin
-    Printf.printf "%s\n%!" (Sys.argv.(4));
     Stringext.full_split Sys.argv.(4) ','
   end else []
 
 let remotes = List.map (fun r -> Sync.remote_uri ("git+ssh://kc@" ^ r ^ "/tmp/ezirminr")) remotes_str
+let _ = Printf.printf "Num remotes=%d\n" (List.length remotes)
 
 let sync_all () =
   let rec loop = function
@@ -106,14 +106,13 @@ let sync_all () =
 let rec edit r = function
   | 0 -> Lwt.return r
   | n ->
-      begin
-      if n mod 10 = 0 then begin
+      (if n mod 10 = 0 then begin
         let p = int_of_float (100.0 *. float_of_int (num_ops - n) /. float_of_int num_ops) in
         Printf.printf "Completed=%d%%\n%!" p;
         write mb [] r
-      end else
-        Lwt.return ()
-      end >>= fun () ->
+      end else 
+	Lwt.return ()) >>= fun () ->
+      (if n mod sync_every = 0 then sync_all () else Lwt.return ()) >>= fun () ->
       length r >>= fun l ->
       if l > 10000 then begin
         delete r 0 1000 >>= fun r ->
@@ -123,21 +122,24 @@ let rec edit r = function
         edit r (n-1)
 
 let rec daemon () =
-  Lwt_unix.sleep 1.0 >>=
-  sync_all >>=
+  Lwt_unix.sleep 1.0 >>= fun () ->
+  sync_all () >>=
   daemon
 
 let main () =
   (if is_first then
     make s >>= fun r ->
     write mb [] r >>= fun _ ->
+    Printf.printf "Committed init write\n";
     Lwt.return r
   else begin
     pull (List.hd remotes) mb `Merge >>= fun res ->
     assert (res = `Ok);
     read mb [] >>= function
     | None -> failwith "Bench_rope: first read failed"
-    | Some r -> Lwt.return r
+    | Some r -> 
+        Printf.printf "Read init write\n"; 
+        Lwt.return r
   end) >>= fun r ->
   ignore (read_line ());
   let t = Unix.gettimeofday () in
