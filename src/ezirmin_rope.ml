@@ -920,9 +920,10 @@ module Make(AO: Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Content) : S
     R.AORepo.get_branch repo "internal" >>= fun ib ->
     R.updater := (fun k v ->
       let sk = Irmin.Hash.SHA1.to_hum k in
-      let dname = String.sub sk 0 2 in
-      let fname = String.sub sk 2 5 in
-      R.AORepo.Store.update (ib ("add " ^ fname)) [dname; fname] v);
+      let d1name = String.sub sk 0 2 in
+      let d2name = String.sub sk 2 2 in
+      let fname = String.sub sk 4 3 in
+      R.AORepo.Store.update (ib ("add " ^ fname)) [d1name; d2name; fname] v);
     let module C = Irmin.Private.Conf in
     let config = C.add C.empty C.root root in
     R.Store_.config := Some config;
