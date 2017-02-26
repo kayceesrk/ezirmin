@@ -111,7 +111,7 @@ let rec edit r = function
         let p = int_of_float (100.0 *. float_of_int (num_ops - n) /. float_of_int num_ops) in
         Printf.printf "Completed=%d%%\n%!" p;
         write mb [] r
-      end else 
+      end else
         Lwt.return ()
       end >>= fun () ->
       length r >>= fun l ->
@@ -123,22 +123,22 @@ let rec edit r = function
         edit r (n-1)
 
 let rec daemon () =
-  Lwt_unix.sleep 1.0 >>= 
+  Lwt_unix.sleep 1.0 >>=
   sync_all >>=
   daemon
 
 let main () =
-  if is_first then
+  (if is_first then
     make s >>= fun r ->
     write mb [] r >>= fun _ ->
     Lwt.return r
   else begin
-    pull (List.hd remotes) mb `Merge >|= fun res ->
+    pull (List.hd remotes) mb `Merge >>= fun res ->
     assert (res = `Ok);
     read mb [] >>= function
     | None -> failwith "Bench_rope: first read failed"
     | Some r -> Lwt.return r
-  end >>= fun r ->
+  end) >>= fun r ->
   ignore (read_line ());
   let t = Unix.gettimeofday () in
   Lwt.async daemon;
