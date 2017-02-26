@@ -1,4 +1,4 @@
 #!/bin/bash
 
 rm -rf /tmp/ezirminr
-time ../_build/bench/bench_paper_rope.native 100
+../_build/bench/bench_paper_rope.native $1 $2 $3
