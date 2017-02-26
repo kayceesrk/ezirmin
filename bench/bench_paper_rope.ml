@@ -82,6 +82,10 @@ let num_ops = int_of_string @@ Sys.argv.(1)
 let rec edit r = function
   | 0 -> Lwt.return r
   | n ->
+      if n mod 10 = 0 then begin
+        let p = int_of_float (100.0 *. float_of_int (num_ops - n) /. float_of_int num_ops) in
+        Printf.printf "Completed=%d%%\n%!" p
+      end;
       length r >>= fun l ->
       if l > 10000 then begin
         delete r 0 1000 >>= fun r ->
