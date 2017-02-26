@@ -106,14 +106,13 @@ let sync_all () =
 let rec edit r = function
   | 0 -> Lwt.return r
   | n ->
-      begin
-      if n mod 10 = 0 then begin
+      (if n mod 10 = 0 then begin
         let p = int_of_float (100.0 *. float_of_int (num_ops - n) /. float_of_int num_ops) in
         Printf.printf "Completed=%d%%\n%!" p;
         write mb [] r
-      end else
-        Lwt.return ()
-      end >>= fun () ->
+      end else 
+	Lwt.return ()) >>= fun () ->
+      (if n mod sync_every = 0 then sync_all () else Lwt.return ()) >>= fun () ->
       length r >>= fun l ->
       if l > 10000 then begin
         delete r 0 1000 >>= fun r ->
