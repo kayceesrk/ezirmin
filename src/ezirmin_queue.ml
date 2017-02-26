@@ -577,6 +577,7 @@ module Make(AO : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V : Tc.S0) : S with type elt
   module Q = Queue(AO)(S)(V)
 
   module Repo = Ezirmin_repo.Make(S)(Q)
+
   include Repo
 
   let init ?root ?bare () =

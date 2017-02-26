@@ -12,4 +12,5 @@ let () =
     Pkg.test "examples/example_rope";
     Pkg.bin "bench/bench_blob_log";
     Pkg.bin "bench/bench_log";
+    Pkg.bin "bench/bench_paper_rope";
   ]
