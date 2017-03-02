@@ -766,15 +766,10 @@ module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
         | `Ok (Some cont) -> ok (Leaf cont)
     in
 
-    let merge_branch store old1 old2 ((b11, l11), (b12, l12)) ((b21, l21), (b22, l22)) =
+    let merge_branch store old1 (b11, l11) (b21, l21) =
       if (b11.key = b21.key) then (Some (b11, l11))
-      else if (b12.key = b22.key) then (
-        if (old1.key = b11.key) then (Some (b21, l21))
-        else if (old1.key = b21.key) then (Some (b11, l11))
-        else None
-      )
-      else if (b12.key = old2.key && b21.key = old1.key) then (Some (b11, l11))
-      else if (b11.key = old1.key && b22.key = old2.key) then (Some (b21, l21))
+      else if (old1.key = b11.key) then (Some (b21, l21))
+      else if (old1.key = b21.key) then (Some (b11, l11))
       else None
     in
 
@@ -783,8 +778,8 @@ module Rope(AO : Irmin.AO_MAKER)(V : Content) = struct
       let rn1 = (n1.right, n1.len - n1.ind) in
       let ln2 = (n2.left, n2.ind) in
       let rn2 = (n2.right, n2.len- n2.ind) in
-      let l_opt = merge_branch store old.left old.right (ln1, rn1) (ln2, rn2) in
-      let r_opt = merge_branch store old.right old.left (rn1, ln1) (rn2, ln2) in
+      let l_opt = merge_branch store old.left ln1 ln2 in
+      let r_opt = merge_branch store old.right rn1 rn2 in
       match (l_opt, r_opt) with
       | None, None -> merge_flush store path (Node old) (Node n1) (Node n2)
       | None, Some (br, lr) -> (
