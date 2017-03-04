@@ -105,14 +105,8 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
           Array.unsafe_set cache_i j (Some res);
           res
     in
-    let rec adjust o = function
-      | [] -> []
-      | (Ins (i, x))::rest -> (Ins (i+o,x)) :: (adjust (o+1) rest)
-      | (Del (i, x))::rest -> (Del (i+o,x)) :: (adjust (o-1) rest)
-      | (Rep (i,x,x'))::rest -> (Rep (i+o,x,x')) :: (adjust o rest)
-    in
     let d,e = loop (String.length xs) (String.length ys) in
-    d, adjust 0 (List.rev e)
+    d, List.rev e
 
   let index = function
     | Ins (i,_) -> i
@@ -132,7 +126,6 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
     | Ins _ -> 1
     | Del _ -> -1
     | Rep _ -> 0
-
 
   let transform p q =
     let cons2 (x,y) (xs,ys) = (x::xs, y::ys) in
@@ -177,19 +170,19 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
     in
     go p 0 q 0
 
-  let rec apply s = function
+  let rec apply off s = function
     | [] -> s
     | Ins(pos,c)::tl ->
-        let s' = insert s pos (String.make 1 c) in
-        apply s' tl
+        let s' = insert s (pos+off) (String.make 1 c) in
+        apply (off + 1) s' tl
     | Rep(pos,x,x')::tl ->
-        assert (get s pos = x);
-        let s' = set s pos x' in
-        apply s' tl
+        let s' = set s (pos + off) x' in
+        apply off s' tl
     | Del(pos,x)::tl ->
-        assert (get s pos = x);
-        let s' = delete s pos 1 in
-        apply s' tl
+        let s' = delete s (pos + off) 1 in
+        apply (off - 1) s' tl
+
+  let apply s = apply 0 s
 
   let merge: Path.t -> t option Irmin.Merge.t =
     let open Irmin.Merge.OP in
