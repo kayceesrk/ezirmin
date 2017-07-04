@@ -176,7 +176,7 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
         let s' = insert s (pos+off) (String.make 1 c) in
         apply (off + 1) s' tl
     | Rep(pos,x,x')::tl ->
-        let s' = set s (pos + off) x' in
+        let s' = if x = x' then s else set s (pos + off) x' in
         apply off s' tl
     | Del(pos,x)::tl ->
         let s' = delete s (pos + off) 1 in
@@ -193,7 +193,7 @@ module Str : Ezirmin_rope.Content with type atom = char and type t = string = st
           let _,p = diff old r1 in
           let _,q = diff old r2 in
           let _,q' = transform p q in
-          let news = apply (apply old p) q' in
+          let news = apply r1 q' in
           ok news
     in
     fun path -> Irmin.Merge.option (module Irmin.Contents.String) (merge_rope path)

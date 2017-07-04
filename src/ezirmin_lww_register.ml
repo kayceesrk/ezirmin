@@ -35,20 +35,20 @@ module Lww_reg(V: Tc.S0) = struct
   module M = Tc.Pair (Time)(V)
   include M
 
-  let to_string t =
-    match to_json t with
-    | `O l -> Ezjsonm.to_string (`O l)
-    | _ -> failwith "Lww_register.to_string"
+  let to_string t = Ezjsonm.to_string (Ezjsonm.wrap (to_json t))
 
-  let of_string s = of_json (Ezjsonm.from_string s)
+  let of_string s = of_json (Ezjsonm.(unwrap (from_string s)))
+
   let write t buf =
     let str = to_string t in
     let len = String.length str in
     Cstruct.blit_from_string str 0 buf 0 len;
     Cstruct.shift buf len
+
   let read buf =
     Mstruct.get_string buf (Mstruct.length buf)
     |> of_string
+
   let size_of t =
     let str = to_string t in
     String.length str
