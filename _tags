@@ -12,6 +12,9 @@ true : bin_annot, safe_string, package(bytes), debug
 <src/ezirmin_rope*.{ml,mli}>: \
 	package(lwt), package(irmin), package(irmin-watcher), package(ppx_jane), package(irmin.unix)
 
+<src/ezirmin_log*.{ml,mli}>: \
+	package(lwt), package(irmin), package(irmin-watcher), package(ppx_jane), package(irmin.unix)
+
 <examples/example*> : \
 	package(lwt), package(irmin), package(ptime), package(ptime.clock.os), \
 	package(git.unix), package(irmin.unix)

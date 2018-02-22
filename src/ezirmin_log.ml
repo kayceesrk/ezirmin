@@ -3,9 +3,120 @@
 open Irmin_unix
 open Lwt.Infix
 
-module Log(AO : Irmin.AO_MAKER)(V: Tc.S0) = struct
+module Log(AO : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V: Tc.S0) = struct
 
   module Path = Irmin.Path.String_list
+  module K = Irmin.Hash.SHA1
+
+  module CR = struct
+
+    (*
+    * Type of a branch in the internal tree.
+    * 'key' is the Irmin key of the subtree pointed to the branch,
+    * 'min_depth' is the minimal depth of this subtree,
+    * 'max_depth' the maximal one.
+    *)
+    type branch = {
+      key : K.t;
+      min_depth : int;
+      max_depth : int;
+    }
+
+    module Branch = Tc.Biject
+      (Tc.Pair (Tc.Pair(K)(Tc.Int))(Tc.Int))
+      (struct
+        type t = branch
+        let to_t ((key, min_depth), max_depth) = {key; min_depth; max_depth}
+        let of_t {key; min_depth; max_depth} = ((key, min_depth), max_depth)
+      end)
+
+    (*
+    * Type of a node in the internal tree.
+    * 'ind' is the index of the node, which is equal to length of the left subtree
+    * 'len' is the length of the tree having this node as the root,
+    * 'left' is the branch pointed to the left subtree,
+    * 'right' the branch of the right one.
+    *)
+    type node = {
+      ind : int;
+      len : int;
+      left : branch;
+      right : branch;
+    }
+
+    module Node = Tc.Biject
+      (Tc.Pair(Tc.Pair(Tc.Int)(Tc.Int))(Tc.Pair(Branch)(Branch)))
+      (struct
+        type t = node
+        let to_t ((ind, len), (left, right)) =
+          {ind; len; left; right}
+        let of_t {ind; len; left; right} =
+          (ind, len), (left, right)
+      end)
+
+    (*
+    * Type of index, which is the accessor to the rope internal tree.
+    * 'length' is the length of the whole rope,
+    * 'root' is the root of the internal tree.
+    *)
+    type index = {
+      length : int;
+      root : K.t;
+    }
+
+    module Index = Tc.Biject
+      (Tc.Pair(Tc.Int)(K))
+      (struct
+        type t = index
+        let to_t (length, root) = {length; root}
+        let of_t {length; root} = (length, root)
+      end)
+
+    type t =
+      | Index of Index.t
+      | Node of Node.t
+      | Leaf of V.t
+    [@@deriving compare]
+
+    let equal a b =
+      Pervasives.compare a b = 0
+
+     let hash = Hashtbl.hash
+
+     let to_json = function
+       | Index i -> `O [ "index", Index.to_json i ]
+       | Node n -> `O [ "node", Node.to_json n ]
+       | Leaf v -> `O [ "leaf", V.to_json v ]
+
+     let of_json = function
+       | `O [ "index", j ] -> Index (Index.of_json j)
+       | `O [ "node", j ] -> Node (Node.of_json j)
+       | `O [ "leaf", j ] -> Leaf (V.of_json j)
+       | j -> Ezjsonm.parse_error j "C.of_json"
+
+    (* FIXME: slow *)
+    let to_string t = Ezjsonm.to_string (to_json t)
+    let of_string s = of_json (Ezjsonm.from_string s)
+    let write t buf =
+      let str = to_string t in
+      let len = String.length str in
+      Cstruct.blit_from_string str 0 buf 0 len;
+      Cstruct.shift buf len
+    let read buf =
+      Mstruct.get_string buf (Mstruct.length buf)
+      |> of_string
+    let size_of t =
+      let str = to_string t in
+      String.length str
+  end
+
+  module CM : Irmin.Contents.S = struct
+    include CR
+    module Path = Irmin.Path.String_list
+    let merge _ = failwith "merge Log.CM"
+  end
+
+  module AORepo = Ezirmin_repo.Make(SM)(CM)
 
   module type TIME = module type of Ptime
 
@@ -27,8 +138,6 @@ module Log(AO : Irmin.AO_MAKER)(V: Tc.S0) = struct
     end)
     include (Ptime : TIME with type t := t)
   end
-
-  module K = Irmin.Hash.SHA1
 
   type log_item =
     { time    : Time.t;
@@ -85,10 +194,17 @@ module Log(AO : Irmin.AO_MAKER)(V: Tc.S0) = struct
       String.length str
   end
 
+  let updater = ref (fun k v -> failwith "r")
+
   module Store = struct
     module S = AO(K)(C)
     include S
     let create () = create @@ Irmin_git.config ()
+
+    let add t v =
+      S.add t v >>= fun k ->
+      (!updater) k v >>= fun _ ->
+      Lwt.return k
   end
 
   include K
@@ -142,11 +258,12 @@ module type S = sig
               -> (unit -> unit Lwt.t) Lwt.t
 end
 
-module Make(AOM : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V:Tc.S0) : S with type elt = V.t = struct
+module Make(AOM : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V:Tc.S0) : S 
+  with type elt = V.t = struct
 
-  module L = Log(AOM)(V)
+  module L = Log(AOM)(S)(V)
 
-  module Repo = Ezirmin_repo.Make(SM)(L)
+  module Repo = Ezirmin_repo.Make(S)(L)
   include Repo
 
   module HashSet = Set.Make(Irmin.Hash.SHA1)
@@ -159,6 +276,17 @@ module Make(AOM : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V:Tc.S0) : S with type elt
       branch : branch }
 
   let head_name = "head"
+
+  let init ?root ?bare () =
+    L.AORepo.init ?root ?bare () >>= fun repo ->
+    L.AORepo.get_branch repo "internal" >>= fun ib ->
+    L.updater := (fun k v ->
+      let sk = Irmin.Hash.SHA1.to_hum k in
+      let d1name: string = String.sub sk 0 2 in
+      let d2name: string = String.sub sk 2 2 in
+      let fname: string = String.sub sk 4 3 in
+      L.AORepo.Store.update (ib ("add " ^ fname)) [d1name; d2name; fname] v);
+    init ?root ?bare ()
 
   let append ?(message="update") t ~path e =
     let head = path @ [head_name] in
