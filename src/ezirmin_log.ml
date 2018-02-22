@@ -108,15 +108,8 @@ module Log(AO : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V: Tc.S0) = struct
     let size_of t =
       let str = to_string t in
       String.length str
-  end
 
-  module CM : Irmin.Contents.S = struct
-    include CR
-    module Path = Irmin.Path.String_list
-    let merge _ = failwith "merge Log.CM"
   end
-
-  module AORepo = Ezirmin_repo.Make(SM)(CM)
 
   module type TIME = module type of Ptime
 
@@ -192,7 +185,14 @@ module Log(AO : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V: Tc.S0) = struct
     let size_of t =
       let str = to_string t in
       String.length str
+
+    module Path = Irmin.Path.String_list
+    let merge _ = failwith "merge Log.CM"
+
   end
+
+  module AORepo = Ezirmin_repo.Make(SM)(C)
+
 
   let updater = ref (fun k v -> failwith "r")
 
