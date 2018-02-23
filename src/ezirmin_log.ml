@@ -186,7 +186,6 @@ module Make(AOM : Irmin.AO_MAKER)(S : Irmin.S_MAKER)(V:Tc.S0) : S
       let d1name: string = String.sub sk 0 2 in
       let d2name: string = String.sub sk 2 2 in
       let fname: string = String.sub sk 4 3 in
-      Printf.printf "%s \n %!" (d1name ^ d2name ^ fname);
       L.AORepo.Store.update (ib ("add " ^ fname)) [d1name; d2name; fname] v);
     let module C = Irmin.Private.Conf in
     let config = C.add C.empty C.root root in
