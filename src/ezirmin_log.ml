@@ -117,9 +117,14 @@ module Log(AO : Irmin.AO_MAKER)(SM : Irmin.S_MAKER)(V: Tc.S0) = struct
   let read_key k =
     Store.create () >>= fun store ->
     Store.read_exn store k
+  
+  let uniq_cons x xs = if List.mem x xs then xs else x :: xs
 
+  let remove_from_right xs = List.fold_right uniq_cons xs []
+  
   let sort l =
-    List.sort (fun i1 i2 -> Time.compare i2.time i1.time) l
+    let with_duplicates = List.sort (fun i1 i2 -> Time.compare i2.time i1.time) l in
+    remove_from_right with_duplicates
 
   let merge : Path.t -> t option Irmin.Merge.t =
     let open Irmin.Merge.OP in
