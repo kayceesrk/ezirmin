@@ -1,3 +1,5 @@
+Ezirmin has now been merged into Irmin (See https://github.com/mirage/irmin/pull/1014).
+
 Ezirmin — An easy interface on top of the Irmin library.
 -------------------------------------------------------------------------------
 
